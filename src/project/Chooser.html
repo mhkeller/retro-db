@@ -1,0 +1,157 @@
+<svelte:window on:mousedown="set({ showMenu: false })"/>
+
+<div class="chooser {focused ? 'focused' : ''}">
+	<div style="width: 9999px">
+		<button class="main" on:click="set({ showMenu: !showMenu })">{selected.name}</button>
+
+		{#if status}
+			<span class="status">{status}</span>
+		{/if}
+	</div>
+
+	{#if showMenu}
+		<div class="menu" on:mousedown="event.stopPropagation()">
+			{#each options as option}
+				<button class="{option === selected ? 'selected' : ''}" on:click="select(option)">{option.name}</button>
+			{/each}
+		</div>
+	{/if}
+
+	<div class="actions" style="width: {actions ? actions.length * 2 : 0}em">
+		{#each (actions || []) as action}
+			<button
+				class="action"
+				disabled={action.disabled}
+				title={action.title}
+				style="background-image: url(../assets/icons/{action.icon}-white.svg)"
+				on:click="fire('action', { method: action.method })"
+			></button>
+		{/each}
+	</div>
+</div>
+
+<style>
+	.chooser {
+		--bg: rgb(68,68,68);
+		--bgz: rgba(68,68,68,0);
+		background-color: var(--bg);
+		/* border-bottom: 1px solid rgba(170,30,30,0.4); */
+		font-size: 14px;
+		box-shadow: 0 2px 2px rgba(0,0,0,0.1);
+	}
+
+	.focused {
+		--bg: hsl(var(--accent-hue),100%,65%);
+		--bgz: hsla(var(--accent-hue),100%,65%,0);
+	}
+
+	button {
+		font-family: inherit;
+		font-size: inherit;
+		background-color: transparent;
+		outline: none;
+		line-height: 1;
+		color: #eee;
+		border: none;
+		padding: 0.5em 1em 0.5em 2em;
+	}
+
+	button.main {
+		background: url(../assets/icons/dropdown-white.svg) no-repeat 0.5em 50%;
+		background-size: 1em 1em;
+	}
+
+	.menu {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 20em;
+		max-width: 100%;
+		background-color: var(--bg);
+		box-shadow: 2px 2px 2px rgba(0,0,0,0.1);
+		border-radius: 2px;
+		z-index: 2;
+	}
+
+	.menu button {
+		display: block;
+		font-weight: normal;
+		width: 100%;
+		text-align: left;
+	}
+
+	.menu button.selected {
+		background: url(../assets/icons/check-white.svg) no-repeat 0.5em 50%;
+		background-size: 1em 1em;
+		font-weight: bold;
+	}
+
+	.menu button:hover {
+		background-color: rgba(0,0,0,0.2);
+	}
+
+	/* .menu button.selected::before {
+		content: '\2714';
+		position: absolute;
+		top: 0;
+		left: 0.5em;
+	} */
+
+	.menu::after {
+		position: absolute;
+		z-index: 3;
+		top: 0;
+		left: 20em;
+		display: block;
+		pointer-events: none;
+		width: 1em;
+		height: 2em;
+		background: var(--bg);
+	}
+
+	.actions {
+		position: absolute;
+		top: 0;
+		right: 0;
+		background: var(--bg);
+	}
+
+	.actions::before {
+		content: '';
+		position: absolute;
+		left: -2em;
+		top: 0;
+		width: 2em;
+		height: 2em;
+		background: linear-gradient(90deg, var(--bgz) 0%,var(--bg) 100%);
+	}
+
+	.action {
+		width: 2em;
+		height: 2em;
+		display: inline-block;
+		padding: 0.5em;
+		background: no-repeat 50% 50%;
+		background-size: 20px;
+		opacity: 0.5;
+		transition: opacity 0.2s;
+	}
+
+	.action:hover {
+		opacity: 1;
+	}
+
+	.action:disabled {
+		opacity: 0.1;
+	}
+</style>
+
+<script>
+	export default {
+		methods: {
+			select(selected) {
+				this.set({ selected, showMenu: false });
+			}
+		}
+	};
+</script>

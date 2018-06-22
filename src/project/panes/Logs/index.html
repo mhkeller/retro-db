@@ -1,0 +1,48 @@
+<div ref:container>
+	<webview src="../pages/logs/index.html" nodeintegration></webview>
+</div>
+
+
+<style>
+	ref:container {
+		width: 100%;
+		height: 100%;
+		min-width: 100px;
+		background: #333;
+	}
+</style>
+
+<script>
+	export default {
+		data() {
+			return {
+				status: ''
+			};
+		},
+
+		oncreate() {
+			const webview = this.refs.container.querySelector('webview');
+
+			webview.addEventListener('dom-ready', () => {
+				const { combined } = this.store.get();
+
+				webview.send('buffered', combined);
+
+				const handler = data => {
+					webview.send('data', data);
+				};
+
+				const listeners = [
+					this.store.on('stdout', handler),
+					this.store.on('stderr', handler)
+				];
+
+				this.on('destroy', () => {
+					listeners.forEach(listener => {
+						listener.cancel();
+					});
+				});
+			});
+		}
+	};
+</script>

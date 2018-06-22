@@ -1,0 +1,174 @@
+{#if $running}
+	<webview ref:wv autosize src="http://localhost:{$port}" {preload}></webview>
+{:else}
+	<div class="centered">
+		<button disabled={$startingDev} on:click="$startDev()">{$startingDev ? 'Starting...' : 'Start app'}</button>
+	</div>
+{/if}
+
+<style>
+	webview {
+		width: 100%;
+		height: 100%;
+		background-color: white;
+	}
+
+	.centered {
+		max-width: 20em;
+		margin: 0 auto;
+		padding: 1em;
+	}
+
+	button {
+		width: 100%;
+		font-family: Rajdhani;
+		text-transform: uppercase;
+		font-size: 20px;
+		padding: 0.5em 1em;
+		border-radius: 2px;
+	}
+
+	button:disabled {
+		background-color: #999;
+		transition: background-color 0.4s;
+	}
+</style>
+
+<script>
+	import * as fs from 'fs';
+	import * as path from 'path';
+	import { ipcRenderer } from 'electron';
+	import relative from 'require-relative';
+	import glob from 'tiny-glob/sync';
+	import uriFromPath from '../../../shared/uriFromPath.ts';
+
+	let findElementScript;
+
+	export default {
+		data() {
+			return {
+				status: '',
+				preload: uriFromPath(path.resolve(__dirname, '../workers/find-element-preload.js'))
+			}
+		},
+
+		computed: {
+			actions: ({ canGoBack, canGoForward, isOnSite }) => {
+				return [
+					{title: 'Back', icon: 'back', method: 'back', disabled: !canGoBack },
+					{title: 'Forward', icon: 'forward', method: 'forward', disabled: !canGoForward },
+					{title: 'Reload', icon: 'reload', method: 'reload' },
+					{title: 'Edit page', icon: 'edit', method: 'editPage', disabled: !isOnSite },
+					{title: 'Edit element', icon: 'crosshairs', method: 'editElement', disabled: !isOnSite }
+				]
+			}
+		},
+
+		oncreate() {
+			let listener;
+
+			const handleNav = event => {
+				const { actions } = this.get();
+				const { port } = this.store.get();
+				const url = new URL(event.url);
+
+				const isOnSite = url.host === `localhost:${port}`;
+
+				const status = isOnSite
+					? url.pathname
+					: url.host + url.pathname;
+
+				const canGoBack = this.refs.wv.canGoBack();
+				const canGoForward = this.refs.wv.canGoForward();
+
+				this.set({ status, canGoBack, canGoForward, isOnSite });
+			};
+
+			const handleIpcMessage = event => {
+				if (event.channel !== 'select-element') return;
+				const [loc] = event.args;
+
+				const { dir } = this.store.get();
+
+				this.store.selectFile(path.join(dir, loc.file), { line: loc.line + 1, column: loc.column });
+			};
+
+			function addEventListeners(webview) {
+				webview.addEventListener('did-navigate-in-page', handleNav);
+				webview.addEventListener('ipc-message', handleIpcMessage);
+			}
+
+			function removeEventListeners(webview) {
+				webview.removeEventListener('did-navigate-in-page', handleNav);
+				webview.removeEventListener('ipc-message', handleIpcMessage);
+			}
+
+			this.on('state', ({ changed, current }) => {
+				if (changed.$running && !current.$running) {
+					if (this.refs.wv) {
+						removeEventListeners(this.refs.wv);
+					}
+				}
+			});
+
+			this.on('update', ({ changed, current }) => {
+				if (changed.$running && current.$running) {
+					addEventListeners(this.refs.wv);
+				}
+			});
+
+			this.on('destroy', () => {
+				if (this.refs.wv) {
+					removeEventListeners(this.refs.wv);
+				}
+			});
+		},
+
+		methods: {
+			start(dir) {
+				this.store.startDev();
+			},
+
+			back() {
+				if (this.refs.wv) this.refs.wv.goBack();
+			},
+
+			forward() {
+				if (this.refs.wv) this.refs.wv.goForward();
+			},
+
+			reload() {
+				if (this.refs.wv) this.refs.wv.reload();
+			},
+
+			async editPage() {
+				const { basepath = '', dir } = this.store.get();
+				const { find_page } = relative('sapper/api.js', dir);
+				const files = glob('**', { cwd: path.resolve(dir, 'routes'), filesOnly: true, dot: true });
+
+				let { status: pathname } = this.get(); // bit of a hack — proxy for pathname
+
+				if (pathname.startsWith(basepath)) {
+					pathname = pathname.slice(basepath.length);
+				}
+
+				const page = find_page(pathname, files);
+
+				if (page) {
+					this.store.selectFile(path.resolve(dir, 'routes', page));
+				}
+			},
+
+			editElement() {
+				if (!this.refs.wv) return;
+
+				if (!findElementScript) {
+					findElementScript = fs.readFileSync(path.resolve(__dirname, '../workers/find-element.js'), 'utf-8');
+				}
+
+				this.refs.wv.focus();
+				this.refs.wv.executeJavaScript(findElementScript);
+			}
+		}
+	};
+</script>

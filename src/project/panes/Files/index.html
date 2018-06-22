@@ -1,0 +1,94 @@
+<div class="files">
+	<ul>
+		<Folder {item} open root/>
+	</ul>
+</div>
+
+<style>
+	.files {
+		margin: 0 0 0 -0.5em;
+		padding: 0.5em 0;
+		overflow-x: hidden;
+		overflow-y: auto;
+		height: 100%;
+	}
+
+	.files::-webkit-scrollbar {
+		background-color: transparent;
+	}
+
+	ul {
+		padding: 0;
+		margin: 0;
+		list-style: none;
+		height: 100%;
+	}
+
+	ul :global(li) {
+		font-size: 14px;
+		line-height: 1;
+		margin: 0;
+		height: 100%;
+	}
+
+	ul :global(span) {
+		display: block;
+		padding: 0.3em 0 0.3em 1.5em;
+		white-space: pre;
+		background: no-repeat 0.2em 0.4em;
+		background-size: 1em 1em;
+	}
+
+	ul :global(span):hover {
+		background-color: rgba(255,255,255,0.1);
+	}
+
+	ul :global(.hidden) :global(span) {
+		color: #999;
+	}
+
+	ul :global(.selected) {
+		color: rgba(170,120,255,1);
+	}
+</style>
+
+<script>
+	import path from 'path';
+
+	export default {
+		components: {
+			Folder: './Folder.html'
+		},
+
+		data() {
+			return {
+				status: '',
+				actions: [
+					{ title: 'New file', icon: 'newfile', method: 'newFile' },
+					{ title: 'New directory', icon: 'newdir', method: 'newDir' }
+				]
+			}
+		},
+
+		computed: {
+			item: ({ $dir }) => {
+				return {
+					isDir: true,
+					isEditing: false,
+					dir: path.dirname($dir),
+					basename: path.basename($dir)
+				};
+			}
+		},
+
+		methods: {
+			newFile() {
+				console.log('creating new file...');
+			},
+
+			newDir() {
+				console.log('creating new dir...');
+			}
+		}
+	};
+</script>
