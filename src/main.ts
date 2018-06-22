@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 import * as child_process from 'child_process';
-import { app, BrowserWindow, dialog, ipcMain } from 'electron';
+import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem } from 'electron';
 import exec from './shared/exec';
 import readJSON from './shared/readJSON';
 import connectPg from './shared/connectPg';
@@ -67,8 +67,10 @@ function openProject(dbFlavor) {
 		backgroundColor: '#111',
 		width: 1024,
 		height: 768,
-		titleBarStyle: 'hidden'
+		titleBarStyle: 'hidden',
+		tabbingIdentifier: 'lulz'
 	});
+	projectWindow.toggleTabBar();
 
 	projectWindow.loadURL(
 		url.format({

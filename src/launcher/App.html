@@ -1,3 +1,4 @@
+<nav id="dragbar"></nav>
 <main>
 	<div id="menu">
     <button class="{which === 'sqlite' ? 'active' : ''}"on:click="set({ which: 'sqlite' })">SQLite</button><button class="{which === 'postgres' ? 'active' : ''}" on:click="set({ which: 'postgres' })">PostgreSQL</button>
@@ -23,6 +24,15 @@
 		background-color: white;
 		color: #333;
 	}
+	#dragbar {
+		-webkit-app-region: drag;
+		position: fixed;
+		top: 0;
+		right: 0;
+		left: 0;
+		height: 25px;
+		background-color: #eee;
+	}
 
 	main {
 		padding: 2em;
@@ -37,6 +47,7 @@
 	button {
 		font-weight: normal;
 		color: #333;
+		user-select: none;
 	}
 
 	#menu button{
