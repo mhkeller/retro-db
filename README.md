@@ -1,4 +1,4 @@
-Ia studio
+ia
 ===
 
 > experimental sql interface
