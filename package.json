@@ -44,6 +44,8 @@
     "pg-native": "^3.0.0",
     "pretty-ms": "^3.1.0",
     "require-relative": "^0.8.7",
+    "sqlite3": "^4.0.0",
+    "stylus": "^0.54.5",
     "svelte-extras": "^2.0.2",
     "svelte-transitions": "^1.2.0",
     "tiny-glob": "^0.2.1",

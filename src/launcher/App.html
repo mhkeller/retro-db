@@ -6,7 +6,10 @@
 
   <div id="list">
     <div class="connection-container" style="display: {which === 'sqlite' ? 'block' : 'none'}">
-    	<div id="drop-target"></div>
+    	<div id="drop-target">
+		    <label for="sqlite-upload" class="upload-label"></label>
+		    <input id="sqlite-upload" class="upload-input" type="file"/>
+    	</div>
     </div>
     <div class="connection-container" style="display: {which === 'postgres' ? 'block' : 'none'}">
     	<div id="constring">

@@ -18,6 +18,22 @@ const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
 const mode = process.env.NODE_ENV;
 
+// const menu = new Menu();
+
+// var template = [{
+// 	label: 'File',
+// 	submenu: [
+// 		{label: 'New', click: () => launch()},
+// 		{label: 'Open', click: () => console.log('open')},
+// 		{label: 'Save', click: () => console.log('save')},
+// 		{label: 'Save As', click: () => console.log('save as')}
+// 	]
+// }];
+
+// menu.append(new MenuItem({
+// 	label: 'y'
+// }));
+
 function reloadOnChange(win) {
 	if (mode !== 'development') return { close: () => {} };
 

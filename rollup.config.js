@@ -3,10 +3,11 @@ import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
 import json from 'rollup-plugin-json';
 import typescript from 'rollup-plugin-typescript';
+import stylus from 'stylus'
 
 export default [
 	{
-		input: ['src/main.ts', 'src/launcher.ts', 'src/project.ts'],
+		input: ['src/main.ts', 'src/launcher.ts'],
 		output: {
 			dir: 'dist',
 			format: 'cjs',
@@ -15,6 +16,20 @@ export default [
 		plugins: [
 			resolve(),
 			svelte({
+				preprocess: {
+					style: ({content, attributes, filename}) => {
+						var style = stylus(content)
+						  .set('filename', filename)
+						  .set('sourcemap', {comment: true});
+
+						return new Promise(function (resolve, reject) {
+							style.render(function (err, code) {
+								if(err !== null) return reject(err);
+								resolve({code, map: style.sourcemap});
+							});
+						});
+					}
+				},
 				css: css => {
 					css.write('assets/svelte.css')
 				},
