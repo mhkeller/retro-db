@@ -1,7 +1,7 @@
 <nav id="dragbar"></nav>
 <main>
 	<div id="menu">
-    <button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button><button class="{flavor === 'postgres' ? 'active' : ''}" on:click="set({ flavor: 'postgres' })">PostgreSQL</button>
+    <button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button><button class="{flavor === 'pg' ? 'active' : ''}" on:click="set({ flavor: 'pg' })">PostgreSQL</button>
   </div>
 
   <div id="list">
@@ -62,7 +62,7 @@
 	import readJSON from '../shared/readJSON';
 
 	import Sqlite from '../components/sqlite-uploader.html';
-	import Postgres from '../components/postgres-connect.html';
+	import Pg from '../components/pg-connect.html';
 
 	// const userData = remote.app.getPath('userData');
 	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
@@ -71,7 +71,7 @@
 		computed: {
 			Flavor: ({flavor}) => {
 				if (flavor === 'sqlite') return Sqlite;
-				if (flavor === 'postgres') return Postgres;
+				if (flavor === 'pg') return Pg;
 			}
 		},
 		data() {

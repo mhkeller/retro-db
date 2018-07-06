@@ -189,8 +189,8 @@ ipcMain.on('load-sqlite', (event, filePath) => {
 	// Another option is to copy the sqlite file to a new project folder
 	// const targetPath = path.join(userData, path.basename(filePath);
 	// fs.copyFileSync(filePath, targetPath);
+	// db = loadSqlite(targetPath);
 	// db = loadSqlite(filePath);
-	db = loadSqlite(targetPath);
 	event.sender.send('status', 'success');
 	openProject('pg');
 });

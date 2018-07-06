@@ -11,8 +11,15 @@
 		height 50vh
 		position relative
 		margin-top 21px
+		&:active,
 		&.active
 			border 3px solid #000
+		&:active
+			&:after
+				content 'Select your file...'
+		&.active
+			&:after
+				content 'Drop drop drop...'
 		&:after
 			content 'Drag sqlite file...'
 			position absolute
@@ -30,6 +37,12 @@
 	import { ipcRenderer } from 'electron';
 
 	export default {
+		oncreate() {
+			ipcRenderer.on('status', (event, status, errMsg) => {
+				this.set({ status });
+			});
+		},
+
 		actions: {
 			dragndrop(node, text) {
 				function dragover() {
@@ -44,7 +57,9 @@
 					node.parentNode.classList.remove('active')
 					node.parentNode.classList.add('processing')
 					// TODO, maybe some type checking
-					ipcRenderer.send('load-sqlite', this.files[0].path);
+					if (this.files && this.files[0]) {
+						ipcRenderer.send('load-sqlite', this.files[0].path);
+					}
 
 				}
 
