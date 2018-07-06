@@ -1,0 +1,29 @@
+<div class="connection-container">
+	<div id="drop-target">
+		<label for="sqlite-upload" class="upload-label"></label>
+		<input id="sqlite-upload" class="upload-input" type="file"/>
+	</div>
+</div>
+
+<style type="text/stylus">
+	#drop-target
+		width 100%
+		border 3px dashed #000
+		height 50vh
+		position relative
+		margin-top 21px
+		&:after
+			content 'Drag sqlite file...'
+			position absolute
+			top 50%
+			left 50%
+			transform translate(-50%, -50%)
+	label
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		left 0
+	input
+		opacity 0
+</style>

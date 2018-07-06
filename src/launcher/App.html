@@ -1,134 +1,59 @@
 <nav id="dragbar"></nav>
 <main>
 	<div id="menu">
-    <button class="{which === 'sqlite' ? 'active' : ''}"on:click="set({ which: 'sqlite' })">SQLite</button><button class="{which === 'postgres' ? 'active' : ''}" on:click="set({ which: 'postgres' })">PostgreSQL</button>
+    <button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button><button class="{flavor === 'postgres' ? 'active' : ''}" on:click="set({ flavor: 'postgres' })">PostgreSQL</button>
   </div>
 
   <div id="list">
-    <div class="connection-container" style="display: {which === 'sqlite' ? 'block' : 'none'}">
-    	<div id="drop-target">
-		    <label for="sqlite-upload" class="upload-label"></label>
-		    <input id="sqlite-upload" class="upload-input" type="file"/>
-    	</div>
-    </div>
-    <div class="connection-container" style="display: {which === 'postgres' ? 'block' : 'none'}">
-    	<div id="constring">
-	    	<label for="constring">Connection string <span>(postgres://user:pw@domain/database)</span></label>
-	    	<input bind:value="constring" type="text" name="constring"/>
-	    </div>
-    </div>
+  	<svelte:component this={Flavor}></svelte:component>
   </div>
-
-  <button id="connect" style="display: {which === 'postgres' ? 'block' : 'none'}" on:click="connectPg(this)">Connect</button>
 </main>
 
-<style>
-	:global(body) {
-		background-color: white;
-		color: #333;
-	}
-	#dragbar {
-		-webkit-app-region: drag;
-		position: fixed;
-		top: 0;
-		right: 0;
-		left: 0;
-		height: 25px;
-		background-color: #eee;
-	}
+<style type="text/stylus">
+	:global(body) 
+		background-color white
+		color #333
+	:global(button)
+		font-weight normal
+		color #333
+		user-select none
+	
+	#dragbar 
+		-webkit-app-region drag
+		app-region drag
+		position fixed
+		top 0
+		right 0
+		left 0
+		height 25px
+		background-color #eee
 
-	main {
-		padding: 2em;
-		height: 100%;
-		box-sizing: border-box;
-	}
-
-	#menu {
-		margin-bottom: 14px;
-	}
-
-	button {
-		font-weight: normal;
-		color: #333;
-		user-select: none;
-	}
-
-	#menu button{
-		display: inline-block;
-		vertical-align: top;
-		border: 2px solid #000;
-		width: 50%;
-		text-align: center;
-		cursor: pointer;
-	}
-
-	#menu .active{
-		background-color: #000;
-		color: #fff;
-		cursor: default;
-	}
-
-	#menu button:first-child{
-		border-radius: 5px 0 0 5px;
-		border-right-width: 1px;
-	}
-	#menu button:last-child{
-		border-radius: 0 5px 5px 0;
-		border-left-width: 1px;
-	}
-
-	#drop-target{
-		width: 100%;
-		border: 3px dashed #000;
-		height: 50vh;
-		position: relative;
-		margin-top: 21px;
-	}
-	#drop-target:after{
-		content: 'Drag sqlite file...';
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
-	#constring label,
-	#constring input{
-		display: block;
-	}
-	#constring label span{
-		color: #aaa;
-	}
-	#constring input{
-		width: 100%;
-		font-size: 21px;
-		border: 1px solid #000;
-		outline: none;
-		padding: 5px 5px 7px 7px;
-	}
-	#connect{
-		width: 100%;
-		position: relative;
-		margin-top: 10px;
-		color: #ccc;
-		cursor: pointer;
-		color: #000;
-		background-color: #409fe7;
-		border: 1px solid #000;
-		pointer-events: all;
-	}
-	#connect:hover{
-		background-color: #2a94e5;
-	}
-	#connect:active{
-		background-color: #1b87da;
-	}
-/*	#connect.active.connecting{
-		pointer-events: none;
-		background-color: #f0c;
-	}
-	#connect.active.connecting:after{
-		content: '..asdfasdfa.';
-	}*/
+	main 
+		padding 2em
+		height 100%
+		box-sizing border-box
+	
+	#menu 
+		margin-bottom 14px
+		
+	button
+		display inline-block
+		vertical-align top
+		border 2px solid #000
+		width 50%
+		text-align center
+		cursor pointer
+		&:first-child
+			border-radius 5px 0 0 5px
+			border-right-width 1px
+		&:last-child
+			border-radius: 0 5px 5px 0;
+			border-left-width: 1px;
+			
+	.active
+		background-color #000
+		color #fff
+		cursor default
 </style>
 
 <script>
@@ -136,37 +61,23 @@
 	import { remote, ipcRenderer } from 'electron';
 	import readJSON from '../shared/readJSON';
 
-	const userData = remote.app.getPath('userData');
+	import Sqlite from '../components/sqlite-uploader.html';
+	import Postgres from '../components/postgres-connect.html';
+
+	// const userData = remote.app.getPath('userData');
 	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
 	export default {
+		computed: {
+			Flavor: ({flavor}) => {
+				if (flavor === 'sqlite') return Sqlite;
+				if (flavor === 'postgres') return Postgres;
+			}
+		},
 		data() {
 			return {
-				which: 'sqlite',
-				constring: ''
+				flavor: 'sqlite'
 			};
-		},
-
-		oncreate() {
-			ipcRenderer.on('status', (event, status, errMsg) => {
-				this.set({ status });
-			});
-		},
-
-		methods: {
-			connectPg(el) {
-				el.classList.add('connecting')
-				// el.dataset.status = 'connecting';
-				const { constring } = this.get();
-				ipcRenderer.send('connect-pg', constring);
-			}
-			// openExistingProject(dir) {
-			// 	ipcRenderer.send('open-existing-project', dir);
-			// },
-
-			// createNewProject() {
-			// 	ipcRenderer.send('create-new-project');
-			// }
 		}
 	};
 </script>
