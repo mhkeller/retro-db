@@ -4,8 +4,10 @@ import * as url from 'url';
 import * as child_process from 'child_process';
 import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem } from 'electron';
 import exec from './shared/exec';
+
 import readJSON from './shared/readJSON';
 import connectPg from './shared/connectPg';
+import loadSqlite from './shared/loadSqlite';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -71,7 +73,7 @@ function launch() {
 	});
 }
 
-function openProject(dbFlavor) {
+function openProject(flavor) {
 	// const index = recent.indexOf(dir);
 	// if (index !== -1) recent.splice(index, 1);
 	// recent.unshift(dir);
@@ -79,7 +81,7 @@ function openProject(dbFlavor) {
 	// fs.writeFileSync(path.join(userData, 'recent.json'), JSON.stringify(recent));
 
 	projectWindow = new BrowserWindow({
-		title: 'my project',
+		title: `${flavor} project`,
 		backgroundColor: '#111',
 		width: 1024,
 		height: 768,
@@ -117,7 +119,7 @@ function openProject(dbFlavor) {
 		});
 	});
 
-	projectWindow.dbFlavor = dbFlavor;
+	projectWindow.flavor = flavor;
 
 	launcherWindow.close();
 }
@@ -179,6 +181,24 @@ ipcMain.on('query-pg', (event, query) => {
 	pool.query(query, (err, res) => {
 		console.log(err, res);
 	})
+});
+
+let db;
+ipcMain.on('load-sqlite', (event, filePath) => {
+	event.sender.send('status', 'loading...');
+	// Another option is to copy the sqlite file to a new project folder
+	// const targetPath = path.join(userData, path.basename(filePath);
+	// fs.copyFileSync(filePath, targetPath);
+	// db = loadSqlite(filePath);
+	db = loadSqlite(targetPath);
+	event.sender.send('status', 'success');
+	openProject('pg');
+});
+
+ipcMain.on('query-sqlite', (event, query) => {
+	db.each(query, function(err, row) {
+    console.log(row.id + ": " + row.info);
+	});
 });
 
 // ipcMain.on('open-existing-project', (event, dir) => {
