@@ -7,7 +7,7 @@ import stylus from 'stylus'
 
 export default [
 	{
-		input: ['src/main.ts', 'src/launcher.ts'],
+		input: ['src/main.ts', 'src/launcher.ts', 'src/project.ts'],
 		output: {
 			dir: 'dist',
 			format: 'cjs',

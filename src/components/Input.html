@@ -1,0 +1,105 @@
+<div id="input-container">
+	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
+	<textarea id="input-textarea" placeholder="SQL query..." bind:value="query"></textarea>
+	<button id="input-button" on:click="onQuery()">Query</button>
+</div>
+
+<style type="text/stylus">
+	#input-container
+		margin-bottom 21px
+		margin-top 35px
+		width 100%
+		position relative
+	#help-text
+		position absolute
+		top 3px
+		left 0
+		background-color red
+		display inline
+		color darken(red, 50%)
+		transform translate(0, -100%)
+		z-index -1
+		padding 4px
+		font-size 13px
+		border 1px solid darken(red, 40%)
+
+	textarea
+		width 100%
+		font-size 14px
+		border-radius 5px 5px 0 0
+		padding 5px
+		outline none
+		resize vertical
+		border 2px solid #000
+		font-family 'Andale Mono', courier, monospace
+		margin 0 
+		display block
+		height 75px
+	button
+		width 100%
+		font-size 16px
+		background #54d48b
+		border 2px solid #000
+		border-top none
+		cursor pointer
+		padding 8px
+		margin 0
+		&:hover
+			background #4dc37f
+		&:active
+			background #44ad71
+</style>
+
+<script>
+	import { ipcRenderer } from 'electron';
+
+	export default {
+		computed: {
+			helpDisplay: ({helpText}) => {
+				if (helpText) return 'inline';
+				return 'none';
+			}
+		},
+		data () {
+			return {
+				query: '',
+				helpText: '',
+				flavor: 'pg'
+			}
+		},
+
+		oncreate () {
+			ipcRenderer.on('query-error', (event, err, errMessage) => {
+				console.error(err);
+				// TODO, highlight error position in the text editor
+		    this.set({helpText: `Error: ${errMessage}`})
+			});
+			ipcRenderer.on('query-ok', (event, rows) => {
+				console.log('rows', rows);
+		    this.set({rows, helpText: ''});
+			});
+		},
+
+		methods: {
+			onQuery(a) {
+				const {query, flavor} = this.get();
+				if (query.trim()) {
+					ipcRenderer.send(`query-${flavor}`, query);
+
+				  // queryDb(query, (err, json) => {
+				  //   if (err) {
+				  //     console.error(err);
+				  //     this.set({helpText: err})
+				  //   } else {
+				  //   	this.set({helpText: ''})
+				  //     // saveQuery(query);
+				  //     // displayResults(json);
+				  //   }
+				  // });
+				} else {
+					this.set({helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'})
+				}
+			}
+		}
+	}
+</script>

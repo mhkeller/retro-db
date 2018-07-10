@@ -1,4 +1,4 @@
-<nav id="dragbar"></nav>
+<Dragbar/>
 <main>
 	<div id="menu">
     <button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button><button class="{flavor === 'pg' ? 'active' : ''}" on:click="set({ flavor: 'pg' })">PostgreSQL</button>
@@ -17,21 +17,13 @@
 		font-weight normal
 		color #333
 		user-select none
-	
-	#dragbar 
-		-webkit-app-region drag
-		app-region drag
-		position fixed
-		top 0
-		right 0
-		left 0
-		height 25px
-		background-color #eee
 
-	main 
+	:global(main) 
+		box-sizing border-box
+
+	main
 		padding 2em
 		height 100%
-		box-sizing border-box
 	
 	#menu 
 		margin-bottom 14px
@@ -61,6 +53,7 @@
 	import { remote, ipcRenderer } from 'electron';
 	import readJSON from '../shared/readJSON';
 
+	import Dragbar from '../components/Dragbar.html';
 	import Sqlite from '../components/sqlite-uploader.html';
 	import Pg from '../components/pg-connect.html';
 
@@ -68,6 +61,9 @@
 	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
 	export default {
+		components: {
+			Dragbar
+		},
 		computed: {
 			Flavor: ({flavor}) => {
 				if (flavor === 'sqlite') return Sqlite;

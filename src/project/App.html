@@ -1,8 +1,11 @@
+<Dragbar/>
 <main>
-
+	<Input/>
 </main>
 
 <style type="text/stylus">
+	main
+		padding 2em 1em
 </style>
 
 <script>
@@ -12,6 +15,10 @@
 	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
 	export default {
+		components: {
+			Dragbar: '../components/Dragbar.html',
+			Input: '../components/Input.html',
+		},
 		data() {
 			return {
 				flavor: window.flavor

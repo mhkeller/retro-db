@@ -83,8 +83,8 @@ function openProject(flavor) {
 	projectWindow = new BrowserWindow({
 		title: `${flavor} project`,
 		backgroundColor: '#111',
-		width: 1024,
-		height: 768,
+		width: 500,
+		height: 500,
 		titleBarStyle: 'hidden',
 		tabbingIdentifier: 'lulz'
 	});
@@ -179,7 +179,11 @@ ipcMain.on('connect-pg', (event, constring) => {
 
 ipcMain.on('query-pg', (event, query) => {
 	pool.query(query, (err, res) => {
-		console.log(err, res);
+		if (err) {
+			event.sender.send('query-error', err, err.message);
+			return;
+		}
+		event.sender.send('query-ok', res.rows);
 	})
 });
 
@@ -197,7 +201,11 @@ ipcMain.on('load-sqlite', (event, filePath) => {
 
 ipcMain.on('query-sqlite', (event, query) => {
 	db.each(query, function(err, row) {
-    console.log(row.id + ": " + row.info);
+		if (err) {
+			event.sender.send('query-error', err);
+		}
+		// event.sender.send('query-ok', res.rows);
+    // console.log(row.id + ": " + row.info);
 	});
 });
 
