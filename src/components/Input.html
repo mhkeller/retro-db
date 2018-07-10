@@ -1,6 +1,6 @@
 <div id="input-container">
 	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
-	<textarea id="input-textarea" placeholder="SQL query..." bind:value="query"></textarea>
+	<textarea id="input-textarea" placeholder="SQL query..." bind:value="query" on:keypress="handleKeypress(event)"></textarea>
 	<button id="input-button" on:click="onQuery()">Query</button>
 </div>
 
@@ -10,6 +10,7 @@
 		margin-top 35px
 		width 100%
 		position relative
+	
 	#help-text
 		position absolute
 		top 3px
@@ -19,7 +20,7 @@
 		color darken(red, 50%)
 		transform translate(0, -100%)
 		z-index -1
-		padding 4px
+		padding 2px 4px
 		font-size 13px
 		border 1px solid darken(red, 40%)
 
@@ -74,14 +75,19 @@
 				// TODO, highlight error position in the text editor
 		    this.set({helpText: `Error: ${errMessage}`})
 			});
-			ipcRenderer.on('query-ok', (event, rows) => {
-				console.log('rows', rows);
-		    this.set({rows, helpText: ''});
+			ipcRenderer.on('query-ok', (event) => {
+		    this.set({helpText: ''});
 			});
 		},
 
 		methods: {
-			onQuery(a) {
+			handleKeypress (e) {
+				if (e.code === 'Enter' && e.altKey === true) {
+					// TODO, add a flash on submit
+				  this.onQuery();
+				}
+			},
+			onQuery () {
 				const {query, flavor} = this.get();
 				if (query.trim()) {
 					ipcRenderer.send(`query-${flavor}`, query);

@@ -1,0 +1,16 @@
+{#each Object.keys(data) as key}
+  <div class="cell">
+    <span>{data[key]}</span>
+  </div>
+{/each}
+
+<style type="text/stylus">
+  .cell
+    display table-cell
+    vertical-align top
+    border-right 1px solid #ccc
+    border-bottom 1px solid #ccc
+    padding 3px
+    &:last-child
+      border-right 0
+</style>

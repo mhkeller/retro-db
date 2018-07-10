@@ -11,7 +11,7 @@ import loadSqlite from './shared/loadSqlite';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let launcherWindow;
+let launcherWindow = null;
 let projectWindow;
 let processes = {};
 
@@ -50,9 +50,9 @@ function reloadOnChange(win) {
 
 function launch() {
 	launcherWindow = new BrowserWindow({
-		width: 800,
-		height: 600,
-		minWidth: 600,
+		width: 500,
+		height: 500,
+		minWidth: 200,
 		backgroundColor: 'white',
 		titleBarStyle: 'hidden'
 	});
@@ -68,7 +68,7 @@ function launch() {
 	const watcher = reloadOnChange(launcherWindow);
 
 	launcherWindow.on('closed', function() {
-		launcherWindow = null;
+		// launcherWindow = null;
 		watcher.close();
 	});
 }

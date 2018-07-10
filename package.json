@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "@sveltejs/svelte-subdivide": "^2.1.0",
+    "@sveltejs/svelte-virtual-list": "^2.1.2",
     "chokidar": "^2.0.3",
     "cross-env": "^5.1.6",
     "default-shell": "^1.0.1",
