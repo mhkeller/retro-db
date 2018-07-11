@@ -1,18 +1,22 @@
-<div class="header-row row">
-	{#if items[0]}
-		{#each Object.keys(items[0].data) as key}
-			<div class="cell header-cell">{key}</div>
-		{/each}
-	{/if}
-</div>
 <div ref:viewport on:scroll='refresh()' style='height: {height};'>
-	<div ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
-		{#each visible as item (item.index)}
-			<div class='row'>
-				<svelte:component this={component} {..._props} {...item.data} />
-			</div>
-		{/each}
-	</div>
+	<table ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
+		{#if columns.length}
+			<thead style='transform: translateY({_headerOffset}px);'>
+				{#each columns as col}
+					<th>{col} <span>{typeof visible[0].data[col]}</span></th>
+				{/each}
+			</thead>
+		{/if}
+		<tbody>
+			{#each visible as item (item.index)}
+				<tr class='row'>
+					{#each columns as col}
+						<td style="text-align:{alignByType(typeof item.data[col])};">{item.data[col]}</td>
+					{/each}
+				</tr>
+			{/each}
+		</tbody>
+	</table>
 </div>
 
 <style type="text/stylus">
@@ -20,29 +24,55 @@
 		overflow-y auto
 		-webkit-overflow-scrolling touch
 	ref:container
-		display table
 		width 100%
-	.row
-		width 100%
-		overflow hidden
-		display table-row
+		border-spacing 0
+	thead
+		position relative
+		text-align left
+		white-space nowrap
+		background-color #fff
+	th
+		z-index 9
+		span
+			font-weight normal
+			color #ccc
+			padding-left 7px
+			display inline-block
+	td
+		z-index -1
+	td,
+	th
+		border-right 1px solid #ccc
+		border-bottom 1px solid #ccc
+		padding 5px
 		&:last-child
-			:global(.cell)
-				border-bottom none
-	.cell
-		display table-cell
+			border-right none
+	tr:last-child
+		td
+			border-bottom none
 </style>
 
 <script>
 	export default {
 		data() {
-			return { start: 0, end: 0, height: '100%', itemHeight: 0, _top: 0, _bottom: 0, _props: {} };
+			return { start: 0, end: 0, height: '100%', itemHeight: 0, _top: 0, _bottom: 0, _props: {}, _headerOffset: 0 };
+		},
+		helpers: {
+			alignByType(type) {
+				if (type === 'number') {
+					return 'right';
+				}
+				return 'left'
+			}
 		},
 		computed: {
 			visible: ({ items, start, end }) => {
 				return items.slice(start, end).map((data, i) => {
 					return { index: i + start, data };
 				});
+			},
+			columns: ({items}) => {
+				return items[0] ? Object.keys(items[0]) : [];
 			}
 		},
 		oncreate() {
@@ -133,6 +163,8 @@
 					if (offset > scrollTop) break;
 					paddingTop = offset;
 				}
+				const _headerOffset = scrollTop % (paddingTop || offset);
+				this.set({_headerOffset})
 				const newStart = i++;
 				for (; i < items.length; i += 1) {
 					if (offset >= scrollTop + offsetHeight) break;

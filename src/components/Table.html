@@ -24,12 +24,7 @@
 
 		oncreate () {
 			ipcRenderer.on('query-ok', (event, rows) => {
-				const columns = Object.keys(rows[0]);
-				const data = rows.map(row => {	const d = {};	
-					d.data = row;
-					return d;
-				});
-				this.set({rows: data});
+				this.set({rows});
 			});
 		},
 
