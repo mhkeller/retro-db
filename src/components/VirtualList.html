@@ -1,4 +1,5 @@
-<div ref:viewport on:scroll='refresh()' style='height: {height};'>
+<Tooltip x="{x}" y="{y}" overTd="{overTd}" ref:tooltip/>
+<div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })'>
 	<table ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
 		{#if fields.length}
 			<thead style='transform: translateY({_headerOffset}px);'>
@@ -11,7 +12,7 @@
 			{#each visible as item (item.index)}
 				<tr class='row'>
 					{#each fields as field}
-						<td style="text-align:{alignByType(field.format)};">{item.data[field.name]}</td>
+						<td style="text-align:{alignByType(field.format)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)">{parse(item.data[field.name])}</td>
 					{/each}
 				</tr>
 			{/each}
@@ -20,6 +21,13 @@
 </div>
 
 <style type="text/stylus">
+	ref:tooltip
+		position absolute
+		top 0
+		left 0
+		width 200px
+		background-color #f0c
+		
 	ref:viewport
 		overflow-y auto
 		-webkit-overflow-scrolling touch
@@ -51,8 +59,11 @@
 
 <script>
 	export default {
+		components: { 
+			Tooltip: '../components/Tooltip.html' 
+		},
 		data() {
-			return { start: 0, end: 0, height: '100%', itemHeight: 0, _top: 0, _bottom: 0, _props: {}, _headerOffset: 0 };
+			return { start: 0, end: 0, height: '100%', itemHeight: 0, _top: 0, _bottom: 0, _props: {}, _headerOffset: 0, overTd: false };
 		},
 		helpers: {
 			alignByType(type) {
@@ -61,6 +72,12 @@
 					return 'right';
 				}
 				return 'left'
+			},
+			parse(data) {
+				if (typeof data === 'object') {
+					return JSON.stringify(data);
+				}
+				return data;
 			}
 		},
 		computed: {
@@ -73,6 +90,7 @@
 		oncreate() {
 			const { items, _props } = this.get();
 			const { container } = this.refs;
+			this.set({_bbox: container.getBoundingClientRect()})
 			const keys = Object.keys(this.options.data).filter(key => key !== 'items' && key !== 'component' && key !== 'height' && key !== 'itemHeight');
 			if (keys.length) {
 				const state = this.get();
@@ -183,6 +201,26 @@
 						d += actualHeight - expectedHeight;
 					}
 					this.refs.viewport.scrollTo(0, this.refs.viewport.scrollTop + d);
+				}
+			},
+			hideTooltip(){
+				this.set({overTd: false});
+			},
+			showTooltip(e) {
+				if (e.altKey === true) {
+					document.getElementById('tooltip').style.display = 'block';
+				}
+			},
+			fillTooltip(e) {
+				this.set({overTd: true});
+				const text = e.target.innerHTML;
+				const tt = document.getElementById('tooltip');
+				let val = text;
+				try {
+					val = JSON.stringify(JSON.parse(text), null, 2);
+					tt.innerHTML = val;
+				} catch (err) {
+					tt.innerHTML = text;
 				}
 			}
 		}

@@ -1,0 +1,17 @@
+<svelte:window on:keydown="set({ key: event.key })" on:keyup="set({ key: ''})"/>
+
+<pre id="tooltip" style="top: {y}px;left:{x}px;display: {overTd && key === 'Alt' ? 'block' : 'none'}"></pre>
+
+<style type="text/stylus">
+  #tooltip
+    position absolute
+    background-color #000
+    font-family 'Andale mono', monospace
+    color #ccc
+    padding 10px
+    border-radius 3px
+    margin-top -25px
+    transform translate(-50%, -100%)
+    pointer-events none
+    z-index 999999
+</style>
