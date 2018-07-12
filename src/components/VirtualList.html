@@ -4,7 +4,7 @@
 		{#if fields.length}
 			<thead style='transform: translateY({_headerOffset}px);'>
 				{#each fields as field}
-					<th>{field.name} <span>{field.format}</span></th>
+					<th data-type={field.format}>{field.name} </th>
 				{/each}
 			</thead>
 		{/if}
@@ -41,11 +41,13 @@
 		background-color #fff
 	th
 		z-index 9
-		span
+		&:after
+			content attr(data-type)
 			font-weight normal
 			color #ccc
 			padding-left 7px
 			display inline-block
+			user-select none
 	td
 		z-index -1
 	td,
