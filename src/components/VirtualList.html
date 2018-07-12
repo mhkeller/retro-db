@@ -1,17 +1,17 @@
 <div ref:viewport on:scroll='refresh()' style='height: {height};'>
 	<table ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
-		{#if columns.length}
+		{#if fields.length}
 			<thead style='transform: translateY({_headerOffset}px);'>
-				{#each columns as col}
-					<th>{col} <span>{typeof visible[0].data[col]}</span></th>
+				{#each fields as field}
+					<th>{field.name} <span>{field.format}</span></th>
 				{/each}
 			</thead>
 		{/if}
 		<tbody>
 			{#each visible as item (item.index)}
 				<tr class='row'>
-					{#each columns as col}
-						<td style="text-align:{alignByType(typeof item.data[col])};">{item.data[col]}</td>
+					{#each fields as field}
+						<td style="text-align:{alignByType(field.format)};">{item.data[field.name]}</td>
 					{/each}
 				</tr>
 			{/each}
@@ -70,9 +70,6 @@
 				return items.slice(start, end).map((data, i) => {
 					return { index: i + start, data };
 				});
-			},
-			columns: ({items}) => {
-				return items[0] ? Object.keys(items[0]) : [];
 			}
 		},
 		oncreate() {

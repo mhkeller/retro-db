@@ -131,6 +131,7 @@ app.on('ready', launch);
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function() {
+	launcherWindow = null
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
@@ -183,7 +184,8 @@ ipcMain.on('query-pg', (event, query) => {
 			event.sender.send('query-error', err, err.message);
 			return;
 		}
-		event.sender.send('query-ok', res.rows);
+		console.log(res);
+		event.sender.send('query-ok', res);
 	})
 });
 

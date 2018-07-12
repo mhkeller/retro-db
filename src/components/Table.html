@@ -1,4 +1,4 @@
-<div id="table"><VirtualList items={rows} component={Row} /></div>
+<div id="table"><VirtualList items={rows} fields={fields} component={Row} /></div>
 
 <style type="text/stylus">
 	section 
@@ -23,13 +23,15 @@
 		},
 
 		oncreate () {
-			ipcRenderer.on('query-ok', (event, rows) => {
-				this.set({rows});
+			ipcRenderer.on('query-ok', (event, {rows, fields}) => {
+				console.log(rows, fields);
+				this.set({rows, fields});
 			});
 		},
 
 		data() {
 			return {
+				fields: [],
 				rows: [],
 				Row
 			};
