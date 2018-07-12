@@ -12,7 +12,7 @@
 			{#each visible as item (item.index)}
 				<tr class='row'>
 					{#each fields as field}
-						<td style="text-align:{alignByType(field.format)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)">{parse(item.data[field.name])}</td>
+						<td style="text-align:{alignByType(field.format)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</td>
 					{/each}
 				</tr>
 			{/each}
@@ -223,6 +223,35 @@
 					tt.innerHTML = val;
 				} catch (err) {
 					tt.innerHTML = text;
+				}
+			},
+			printToConsole(e) {
+				const text = e.target.innerHTML;
+				try {
+					console.log(JSON.parse(text));
+				} catch (err) {
+					console.log(text)
+				}
+				if (e.metaKey === true) {
+					var textArea = document.createElement("textarea");
+					textArea.style.display = 'none';
+					textArea.value = text;
+					document.body.appendChild(textArea);
+					textArea.focus();
+					textArea.select();
+
+					try {
+					  var successful = document.execCommand('copy');
+					  if (successful) {
+						  console.log('Copied cell to clipboard');
+					  } else {
+					  	console.log('Clipboard copy failed');
+					  }
+					} catch (err) {
+					  console.error('Unable to copy to clipboard', err);
+					}
+
+					 document.body.removeChild(textArea);		
 				}
 			}
 		}
