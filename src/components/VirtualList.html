@@ -47,9 +47,6 @@
 		padding 5px
 		&:last-child
 			border-right none
-	tr:last-child
-		td
-			border-bottom none
 </style>
 
 <script>
@@ -59,7 +56,8 @@
 		},
 		helpers: {
 			alignByType(type) {
-				if (type === 'number') {
+				const rights = ['integer', 'smallint', 'bigint'];
+				if (rights.includes(type)) {
 					return 'right';
 				}
 				return 'left'
