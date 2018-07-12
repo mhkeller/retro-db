@@ -8,6 +8,7 @@ import exec from './shared/exec';
 import readJSON from './shared/readJSON';
 import connectPg from './shared/connectPg';
 import loadSqlite from './shared/loadSqlite';
+import pgTypeLookup from './shared/pg-type-lookup.json';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -153,39 +154,18 @@ ipcMain.on('connect-pg', (event, constring) => {
 	pool = connectPg(event, constring);
 	event.sender.send('status', 'success');
 	openProject('pg');
-	// dialog.showOpenDialog(launcherWindow, {
-	// 	title: 'Create project',
-	// 	buttonLabel: 'Create project',
-	// 	properties: ['openDirectory', 'createDirectory'],
-	// }, async (filenames) => {
-	// 	if (!filenames) return;
-
-	// 	const [filename] = filenames;
-
-	// 	event.sender.send('status', `cloning repo to ${path.basename(filename)}...`);
-
-	// 	// clone repo
-	// 	const degit = require('degit');
-	// 	const emitter = degit('sveltejs/sapper-template');
-	// 	await emitter.clone(filename);
-
-	// 	event.sender.send('status', `installing dependencies...`);
-
-	// 	// install dependencies
-	// 	await exec(`npm install`, { cwd: filename });
-
-	// 	openProject(filename);
-	// });
 });
 
 ipcMain.on('query-pg', (event, query) => {
-	pool.query(query, (err, res) => {
+	pool.query(query, (err, {rows, fields}) => {
 		if (err) {
 			event.sender.send('query-error', err, err.message);
 			return;
 		}
-		console.log(res);
-		event.sender.send('query-ok', res);
+		const cleanFields = fields.map(d => {
+			return {name: d.name, type: pgTypeLookup[d.dataTypeID]}
+		})
+		event.sender.send('query-ok', {rows, fields: cleanFields});
 	})
 });
 

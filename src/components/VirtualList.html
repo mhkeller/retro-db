@@ -4,7 +4,7 @@
 		{#if fields.length}
 			<thead style='transform: translateY({_headerOffset}px);'>
 				{#each fields as field}
-					<th data-type={field.format}>{field.name} </th>
+					<th data-type={field.type}>{field.name} </th>
 				{/each}
 			</thead>
 		{/if}
@@ -12,7 +12,7 @@
 			{#each visible as item (item.index)}
 				<tr class='row'>
 					{#each fields as field}
-						<td style="text-align:{alignByType(field.format)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</td>
+						<td style="text-align:{alignByType(field.type)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</td>
 					{/each}
 				</tr>
 			{/each}
