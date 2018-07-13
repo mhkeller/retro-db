@@ -1,4 +1,4 @@
-<Tooltip x="{x}" y="{y}" overTd="{overTd}" ref:tooltip/>
+<Tooltip ref:tooltip x="{x}" y="{y}" overTd="{overTd}"/>
 <div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })'>
 	<table ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
 		{#if fields.length}
@@ -21,13 +21,6 @@
 </div>
 
 <style type="text/stylus">
-	ref:tooltip
-		position absolute
-		top 0
-		left 0
-		width 200px
-		background-color #f0c
-		
 	ref:viewport
 		overflow-y auto
 		-webkit-overflow-scrolling touch
