@@ -33,6 +33,16 @@
 		border 2px solid #000
 		margin 0 
 		min-height 75px
+		&:before
+			content ' '
+			position absolute
+			top 0
+			left -1px
+			bottom 0
+			z-index -1
+			width 30px
+			background #f7f7f7
+			border-right 1px solid #ddd
 	button
 		width 100%
 		font-size 16px
@@ -51,6 +61,10 @@
 <script>
 	import { ipcRenderer } from 'electron';
 	import CodeMirror from 'codemirror';
+	import sql from 'codemirror/mode/sql/sql.js';
+	import sublime from 'codemirror/keymap/sublime.js';
+	import matchBrackets from 'codemirror/addon/edit/matchbrackets.js';
+	import closeBrackets from 'codemirror/addon/edit/closebrackets.js';
 
 	export default {
 		computed: {
@@ -71,19 +85,27 @@
 			const { textarea } = this.refs;
 
 			CodeMirror(textarea, {
-				value: 'select * from my_table;\n\n',
+				value: 'select * from my_table;',
 				mode: 'text/x-sql',
 				lineNumbers: true,
-				autofocus: true
+				autofocus: true,
+				indentWithTabs: true,
+				smartIndent: true,
+				lineNumbers: true,
+				keyMap: 'sublime',
+				matchBrackets : true,
+				autoCloseBrackets: true,
+				autofocus: true,
+				extraKeys: {"Ctrl-Space": "autocomplete"},
 			});
 
 			ipcRenderer.on('query-error', (event, err, errMessage) => {
 				console.error(err);
 				// TODO, highlight error position in the text editor
-		    this.set({helpText: `Error: ${errMessage}`})
+				this.set({helpText: `Error: ${errMessage}`})
 			});
 			ipcRenderer.on('query-ok', (event) => {
-		    this.set({helpText: ''});
+				this.set({helpText: ''});
 			});
 		},
 
@@ -91,7 +113,7 @@
 			handleKeypress (e) {
 				if (e.code === 'Enter' && e.altKey === true) {
 					// TODO, add a flash on submit
-				  this.onQuery();
+					this.onQuery();
 				}
 			},
 			onQuery () {
@@ -99,16 +121,16 @@
 				if (query.trim()) {
 					ipcRenderer.send(`query-${flavor}`, query);
 
-				  // queryDb(query, (err, json) => {
-				  //   if (err) {
-				  //     console.error(err);
-				  //     this.set({helpText: err})
-				  //   } else {
-				  //   	this.set({helpText: ''})
-				  //     // saveQuery(query);
-				  //     // displayResults(json);
-				  //   }
-				  // });
+					// queryDb(query, (err, json) => {
+					//   if (err) {
+					//     console.error(err);
+					//     this.set({helpText: err})
+					//   } else {
+					//   	this.set({helpText: ''})
+					//     // saveQuery(query);
+					//     // displayResults(json);
+					//   }
+					// });
 				} else {
 					this.set({helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'})
 				}
