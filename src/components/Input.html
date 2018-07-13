@@ -1,6 +1,6 @@
 <div id="input-container">
 	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
-	<textarea id="input-textarea" placeholder="SQL query..." bind:value="query" on:keypress="handleKeypress(event)"></textarea>
+	<textarea ref:textarea id="input-textarea" placeholder="SQL query..." bind:value="query" on:keypress="handleKeypress(event)"></textarea>
 	<button id="input-button" on:click="onQuery()">Query</button>
 </div>
 
@@ -53,6 +53,7 @@
 
 <script>
 	import { ipcRenderer } from 'electron';
+	import CodeMirror from 'codemirror';
 
 	export default {
 		computed: {
@@ -70,6 +71,12 @@
 		},
 
 		oncreate () {
+			const { textarea } = this.refs;
+
+			CodeMirror.fromTextArea(textarea, {
+				mode: 'sql'
+			});
+
 			ipcRenderer.on('query-error', (event, err, errMessage) => {
 				console.error(err);
 				// TODO, highlight error position in the text editor
