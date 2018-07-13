@@ -71,8 +71,8 @@
 			const { textarea } = this.refs;
 
 			CodeMirror(textarea, {
-				value: 'var x = "hello";\n\n',
-				mode: 'javascript',
+				value: 'select * from my_table;\n\n',
+				mode: 'text/x-sql',
 				lineNumbers: true,
 				autofocus: true
 			});
