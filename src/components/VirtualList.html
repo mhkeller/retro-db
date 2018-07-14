@@ -1,23 +1,23 @@
 <Tooltip ref:tooltip x="{x}" y="{y}" overTd="{overTd}"/>
 <div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })'>
-	<table ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
+	<div ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
 		{#if fields.length}
-			<thead style='transform: translateY({_headerOffset}px);'>
+			<div id="thead" style='transform: translateY({_headerOffset}px);'>
 				{#each fields as field}
-					<th data-type={field.type}>{field.name} </th>
+					<div class="cell header-cell" data-type={field.type}>{field.name} </div>
 				{/each}
-			</thead>
+			</div>
 		{/if}
-		<tbody>
+		<div>
 			{#each visible as item (item.index)}
-				<tr class='row'>
+				<div class='row'>
 					{#each fields as field}
-						<td style="text-align:{alignByType(field.type)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</td>
+						<div class="cell" style="text-align:{alignByType(field.type)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
 					{/each}
-				</tr>
+				</div>
 			{/each}
-		</tbody>
-	</table>
+		</div>
+	</div>
 </div>
 
 <style type="text/stylus">
@@ -27,12 +27,12 @@
 	ref:container
 		width 100%
 		border-spacing 0
-	thead
+	#thead
 		position relative
 		text-align left
 		white-space nowrap
 		background-color #fff
-	th
+	.cell.header-cell
 		z-index 9
 		&:after
 			content attr(data-type)
@@ -41,10 +41,9 @@
 			padding-left 7px
 			display inline-block
 			user-select none
-	td
+	.row .cell
 		z-index -1
-	td,
-	th
+	.cell
 		border-right 1px solid #ccc
 		border-bottom 1px solid #ccc
 		padding 5px

@@ -1,7 +1,7 @@
 <div id="input-container">
 	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
-	<div id="textarea-container" ref:textarea>
-		<!-- <textarea ref:textarea id="input-textarea" placeholder="SQL query..." bind:value="query" on:keypress="handleKeypress(event)"></textarea> -->
+	<div id="textarea-container" ref:textareaContainer on:click="setFocus()">
+		<!-- <textarea id="textarea" ref:textarea autofocus placeholder="SQL query..." bind:value="query" on:change="handleKeypress(event)"></textarea> -->
 	</div>
 	<button id="input-button" on:click="onQuery()">Query</button>
 </div>
@@ -21,7 +21,6 @@
 		display inline
 		color darken(red, 50%)
 		transform translate(0, -100%)
-		z-index -1
 		padding 2px 4px
 		font-size 13px
 		border 1px solid darken(red, 40%)
@@ -65,6 +64,9 @@
 	import sublime from 'codemirror/keymap/sublime.js';
 	import matchBrackets from 'codemirror/addon/edit/matchbrackets.js';
 	import closeBrackets from 'codemirror/addon/edit/closebrackets.js';
+	import placeholder from 'codemirror/addon/display/placeholder.js';
+
+	let cm;
 
 	export default {
 		computed: {
@@ -75,20 +77,21 @@
 		},
 		data () {
 			return {
-				query: '',
+				query: 'select * from my_table;',
 				helpText: '',
 				flavor: 'pg'
 			}
 		},
 
 		oncreate () {
-			const { textarea } = this.refs;
+			const { textareaContainer } = this.refs;
+			const { query } = this.get();
 
-			CodeMirror(textarea, {
-				value: 'select * from my_table;',
-				mode: 'text/x-sql',
+			cm = CodeMirror(textareaContainer, {
+				placeholder: 'SQl query...',
+				// value: query,
+				mode: 'text/x-pgsql',
 				lineNumbers: true,
-				autofocus: true,
 				indentWithTabs: true,
 				smartIndent: true,
 				lineNumbers: true,
@@ -96,7 +99,16 @@
 				matchBrackets : true,
 				autoCloseBrackets: true,
 				autofocus: true,
-				extraKeys: {"Ctrl-Space": "autocomplete"},
+				extraKeys: {
+					'Ctrl-Space': 'autocomplete',
+					'Cmd-Enter': (el) => {
+						this.onQuery();
+					}
+				},
+			});
+
+			cm.on('change', (el) => {
+				this.set({query: el.getValue()})
 			});
 
 			ipcRenderer.on('query-error', (event, err, errMessage) => {
@@ -110,29 +122,17 @@
 		},
 
 		methods: {
-			handleKeypress (e) {
-				if (e.code === 'Enter' && e.altKey === true) {
-					// TODO, add a flash on submit
-					this.onQuery();
-				}
+			setFocus() {
+				cm.focus();
 			},
 			onQuery () {
 				const {query, flavor} = this.get();
 				if (query.trim()) {
 					ipcRenderer.send(`query-${flavor}`, query);
-
-					// queryDb(query, (err, json) => {
-					//   if (err) {
-					//     console.error(err);
-					//     this.set({helpText: err})
-					//   } else {
-					//   	this.set({helpText: ''})
-					//     // saveQuery(query);
-					//     // displayResults(json);
-					//   }
-					// });
 				} else {
-					this.set({helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'})
+					this.set({
+						helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'
+					})
 				}
 			}
 		}

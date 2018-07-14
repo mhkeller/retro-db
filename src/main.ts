@@ -157,15 +157,15 @@ ipcMain.on('connect-pg', (event, constring) => {
 });
 
 ipcMain.on('query-pg', (event, query) => {
-	pool.query(query, (err, {rows, fields}) => {
+	pool.query(query, (err, res) => {
 		if (err) {
 			event.sender.send('query-error', err, err.message);
 			return;
 		}
-		const cleanFields = fields.map(d => {
+		const cleanFields = res.fields.map(d => {
 			return {name: d.name, type: pgTypeLookup[d.dataTypeID]}
-		})
-		event.sender.send('query-ok', {rows, fields: cleanFields});
+		});
+		event.sender.send('query-ok', {rows: res.rows, fields: cleanFields});
 	})
 });
 
