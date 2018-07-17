@@ -1,6 +1,6 @@
 <svelte:window on:keydown="set({ key: event.key })" on:keyup="set({ key: ''})"/>
 
-<pre id="tooltip" style="top: {y}px;left:{x}px;display: {showTooltip(overTd, key)}"><code>{ttVal}</code></pre>
+<div id="tooltip" style="top: {y}px;left:{x}px;display: {showTooltip(overTd, key)}">{ttVal}</div>
 
 <style type="text/stylus">
 	#tooltip
@@ -13,7 +13,7 @@
 		word-wrap break-word
 		border-radius 3px
 		margin-top -25px
-		max-width 250px
+		max-width 350px
 		max-height 250px
 		transform translate(-50%, -100%)
 		pointer-events none
