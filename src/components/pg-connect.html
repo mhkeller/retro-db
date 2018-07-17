@@ -1,7 +1,7 @@
 <div class="connection-container">
 	<div id="constring">
 		<label for="constring">Connection string <span>(postgres://user:pw@domain/database)</span></label>
-		<input bind:value="constring" type="text" name="constring"/>
+		<input bind:value="constring" value="postgres://mhk@localhost/mhk" type="text" name="constring"/>
 	</div>
 </div>
 <button id="connect" on:click="connectPg(this)">Connect</button>
@@ -41,7 +41,7 @@
 	export default {
 		data() {
 			return {
-				constring: ''
+				constring: 'postgres://mhk@localhost/mhk'
 			};
 		},
 

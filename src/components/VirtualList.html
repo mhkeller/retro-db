@@ -1,18 +1,18 @@
-<Tooltip ref:tooltip x="{x}" y="{y}" overTd="{overTd}"/>
+<Tooltip ref:tooltip x="{x}" y="{y}" overTd="{overTd}" ttVal='{ttVal}'/>
 <div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })'>
 	<div ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
 		{#if fields.length}
 			<div id="thead" style='transform: translateY({_headerOffset}px);'>
 				{#each fields as field}
-					<div class="cell header-cell" data-type={field.type}>{field.name} </div>
+					<div class="cell header-cell" style="width: {dims[field.name]}px" data-type={field.type}>{field.name} </div>
 				{/each}
 			</div>
 		{/if}
-		<div>
+		<div id="tbody">
 			{#each visible as item (item.index)}
 				<div class='row'>
 					{#each fields as field}
-						<div class="cell" style="text-align:{alignByType(field.type)};" on:mouseout="hideTooltip()" on:mouseover="fillTooltip(event)" on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
+						<div class="cell {hasOverflow(item.data[field.name], field.name, dims, widthMultiplier)}" style="text-align:{alignByType(field.type)};width: {dims[field.name]}px;" on:mouseout="hideTooltip()" on:mouseover='fillTooltip(event)' on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
 					{/each}
 				</div>
 			{/each}
@@ -27,13 +27,17 @@
 	ref:container
 		width 100%
 		border-spacing 0
+	#thead,
+	.row
+		white-space nowrap
 	#thead
 		position relative
 		text-align left
-		white-space nowrap
-		background-color #fff
+		
 	.cell.header-cell
 		z-index 9
+		font-weight bold
+		background-color #fff
 		&:after
 			content attr(data-type)
 			font-weight normal
@@ -41,14 +45,23 @@
 			padding-left 7px
 			display inline-block
 			user-select none
-	.row .cell
-		z-index -1
 	.cell
 		border-right 1px solid #ccc
 		border-bottom 1px solid #ccc
 		padding 5px
-		&:last-child
-			border-right none
+		display inline-block
+		vertical-align top
+		overflow hidden
+		&.has-overflow
+			&:after
+				content ' '
+				position absolute
+				top 0
+				bottom 0
+				left 100%
+				background-color #fff
+				width 10px
+				box-shadow -5px 0px 12px #a7a7a7
 </style>
 
 <script>
@@ -57,11 +70,24 @@
 			Tooltip: '../components/Tooltip.html' 
 		},
 		data() {
-			return { start: 0, end: 0, height: '100%', itemHeight: 0, _top: 0, _bottom: 0, _props: {}, _headerOffset: 0, overTd: false };
+			return { 
+				start: 0, 
+				end: 0, 
+				height: '100%', 
+				itemHeight: 0, 
+				_top: 0, 
+				_bottom: 0, 
+				_props: {}, 
+				_headerOffset: 0, 
+				overTd: false,
+				widthMultiplier: 8,
+				xScroll: 0,
+				ttVal: ''
+			};
 		},
 		helpers: {
 			alignByType(type) {
-				const rights = ['integer', 'smallint', 'bigint'];
+				const rights = ['int', 'smallint', 'bigint', 'numeric'];
 				if (rights.includes(type)) {
 					return 'right';
 				}
@@ -72,6 +98,10 @@
 					return JSON.stringify(data);
 				}
 				return data;
+			},
+			hasOverflow(d, fieldName, dims, widthMultiplier) {
+				const valString = typeof d !== 'string' ? JSON.stringify(d) : d;
+				return 150 < (valString.length * widthMultiplier) ? 'has-overflow' : ''
 			}
 		},
 		computed: {
@@ -79,12 +109,30 @@
 				return items.slice(start, end).map((data, i) => {
 					return { index: i + start, data };
 				});
+			},
+			dims: ({items, fields, widthMultiplier}) => {
+				const dims = {};
+				const MIN = 100;
+				const MAX = 150;
+				fields.forEach(field => {
+					dims[field.name] = Math.max((field.name.length + field.type.length) + 150, MIN);
+				});
+				items.forEach(item => {
+					fields.forEach(field => {
+						const valString = typeof item[field.name] !== 'string' ? JSON.stringify(item[field.name]) : item[field.name];
+						if ((dims[field.name] < valString.length * widthMultiplier)) {
+							dims[field.name] = Math.min(valString.length * widthMultiplier, MAX);
+						}
+						dims[field.name] = Math.max(dims[field.name], MIN);
+					});
+				});
+				return dims;
 			}
 		},
 		oncreate() {
 			const { items, _props } = this.get();
 			const { container } = this.refs;
-			this.set({_bbox: container.getBoundingClientRect()})
+			this.set({_bbox: container.getBoundingClientRect()});
 			const keys = Object.keys(this.options.data).filter(key => key !== 'items' && key !== 'component' && key !== 'height' && key !== 'itemHeight');
 			if (keys.length) {
 				const state = this.get();
@@ -127,7 +175,7 @@
 		},
 		methods: {
 			initialise() {
-				const { items, itemHeight } = this.get();
+				const { items, itemHeight, fields } = this.get();
 				const { viewport } = this.refs;
 				const viewportHeight = viewport.offsetHeight;
 				if (itemHeight) {
@@ -153,9 +201,9 @@
 					});
 				}
 			},
-			refresh() {
+			refresh(el) {
 				const { items, start, end, itemHeight } = this.get();
-				const { offsetHeight, scrollTop } = this.refs.viewport;
+				const { offsetHeight, scrollTop, scrollLeft } = this.refs.viewport;
 				let paddingTop = 0;
 				let offset = 0;
 				let i = 0;
@@ -194,27 +242,22 @@
 						const actualHeight = this.rows[i - newStart].offsetHeight;
 						d += actualHeight - expectedHeight;
 					}
-					this.refs.viewport.scrollTo(0, this.refs.viewport.scrollTop + d);
+					this.refs.viewport.scrollTo(scrollLeft, this.refs.viewport.scrollTop + d);
 				}
 			},
-			hideTooltip(){
+			hideTooltip() {
 				this.set({overTd: false});
-			},
-			showTooltip(e) {
-				if (e.altKey === true) {
-					document.getElementById('tooltip').style.display = 'block';
-				}
 			},
 			fillTooltip(e) {
 				this.set({overTd: true});
+				const tt = this.refs.tooltip;
 				const text = e.target.innerHTML;
-				const tt = document.getElementById('tooltip');
 				let val = text;
 				try {
 					val = JSON.stringify(JSON.parse(text), null, 2);
-					tt.innerHTML = val;
+					this.set({ttVal: val});
 				} catch (err) {
-					tt.innerHTML = text;
+					this.set({ttVal: text});
 				}
 			},
 			printToConsole(e) {
@@ -233,14 +276,14 @@
 					textArea.select();
 
 					try {
-					  var successful = document.execCommand('copy');
-					  if (successful) {
-						  console.log('Copied cell to clipboard');
-					  } else {
-					  	console.log('Clipboard copy failed');
-					  }
+						var successful = document.execCommand('copy');
+						if (successful) {
+							console.log('Copied cell to clipboard');
+						} else {
+							console.log('Clipboard copy failed');
+						}
 					} catch (err) {
-					  console.error('Unable to copy to clipboard', err);
+						console.error('Unable to copy to clipboard', err);
 					}
 
 					 document.body.removeChild(textArea);		

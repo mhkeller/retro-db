@@ -77,7 +77,7 @@
 		},
 		data () {
 			return {
-				query: 'select * from my_table;',
+				query: 'select * from t2;',
 				helpText: '',
 				flavor: 'pg'
 			}
@@ -89,7 +89,7 @@
 
 			cm = CodeMirror(textareaContainer, {
 				placeholder: 'SQl query...',
-				// value: query,
+				value: query,
 				mode: 'text/x-pgsql',
 				lineNumbers: true,
 				indentWithTabs: true,
