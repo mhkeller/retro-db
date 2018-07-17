@@ -34,7 +34,7 @@
 		position relative
 		text-align left
 		z-index 9
-		
+
 	.cell.header-cell
 		z-index 9
 		font-weight bold
@@ -55,31 +55,34 @@
 		overflow hidden
 		&.has-overflow
 			&:after
-				content ' '
+				content '...'
 				position absolute
-				top 0
 				bottom 0
-				left 100%
+				left calc(100% - 18px)
 				background-color #fff
-				width 10px
-				box-shadow -5px 0px 12px #a7a7a7
+				width 16px
+				height 20px
+				line-height 3px
+				padding 2px
+				color #ccc
+				box-shadow -3px 0px 8px #fff
 </style>
 
 <script>
 	export default {
-		components: { 
-			Tooltip: '../components/Tooltip.html' 
+		components: {
+			Tooltip: '../components/Tooltip.html'
 		},
 		data() {
-			return { 
-				start: 0, 
-				end: 0, 
-				height: '100%', 
-				itemHeight: 0, 
-				_top: 0, 
-				_bottom: 0, 
-				_props: {}, 
-				_headerOffset: 0, 
+			return {
+				start: 0,
+				end: 0,
+				height: '100%',
+				itemHeight: 0,
+				_top: 0,
+				_bottom: 0,
+				_props: {},
+				_headerOffset: 0,
 				overTd: false,
 				widthMultiplier: 8,
 				xScroll: 0,
@@ -92,7 +95,7 @@
 				if (rights.includes(type)) {
 					return 'right';
 				}
-				return 'left'
+				return 'left';
 			},
 			parse(data) {
 				if (typeof data === 'object') {
@@ -102,7 +105,7 @@
 			},
 			hasOverflow(d, fieldName, dims, widthMultiplier) {
 				const valString = typeof d !== 'string' ? JSON.stringify(d) : d;
-				return 150 < (valString.length * widthMultiplier) ? 'has-overflow' : ''
+				return (valString.length * widthMultiplier) > 150 ? 'has-overflow' : '';
 			}
 		},
 		computed: {
@@ -151,8 +154,7 @@
 				if (changed.items || changed.height || changed.itemHeight) {
 					if (current.itemHeight && (changed.itemHeight || current.items.length > this.heightMap.length)) {
 						this.heightMap = current.items.map(() => current.itemHeight);
-					}
-					else if (current.items.length > this.heightMap.length) {
+					} else if (current.items.length > this.heightMap.length) {
 						if (this.heightMap.length === 0) {
 							this.initialise();
 						} else {
@@ -176,7 +178,7 @@
 		},
 		methods: {
 			initialise() {
-				const { items, itemHeight, fields } = this.get();
+				const { items, itemHeight } = this.get();
 				const { viewport } = this.refs;
 				const viewportHeight = viewport.offsetHeight;
 				if (itemHeight) {
@@ -220,7 +222,7 @@
 					paddingTop = offset;
 				}
 				const _headerOffset = scrollTop % (paddingTop || offset);
-				this.set({_headerOffset})
+				this.set({_headerOffset});
 				const newStart = i++;
 				for (; i < items.length; i += 1) {
 					if (offset >= scrollTop + offsetHeight) break;
@@ -251,7 +253,6 @@
 			},
 			fillTooltip(e) {
 				this.set({overTd: true});
-				const tt = this.refs.tooltip;
 				const text = e.target.innerHTML;
 				let val = text;
 				try {
@@ -266,10 +267,10 @@
 				try {
 					console.log(JSON.parse(text));
 				} catch (err) {
-					console.log(text)
+					console.log(text);
 				}
 				if (e.metaKey === true) {
-					var textArea = document.createElement("textarea");
+					var textArea = document.createElement('textarea');
 					textArea.style.display = 'none';
 					textArea.value = text;
 					document.body.appendChild(textArea);
@@ -286,8 +287,7 @@
 					} catch (err) {
 						console.error('Unable to copy to clipboard', err);
 					}
-
-					 document.body.removeChild(textArea);		
+						document.body.removeChild(textArea);
 				}
 			}
 		}
