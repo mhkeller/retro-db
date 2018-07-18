@@ -1,13 +1,13 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
-import * as child_process from 'child_process';
-import { app, BrowserWindow, dialog, ipcMain, Menu, MenuItem } from 'electron';
-import exec from './shared/exec';
+// import * as child_process from 'child_process';
+import { app, BrowserWindow, ipcMain } from 'electron';
+// import exec from './shared/exec';
 
 import readJSON from './shared/readJSON';
 import connectPg from './shared/connectPg';
-import loadSqlite from './shared/loadSqlite';
+// import loadSqlite from './shared/loadSqlite';
 import pgTypeLookup from './shared/pg-type-lookup.json';
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -37,7 +37,7 @@ const mode = process.env.NODE_ENV;
 // 	label: 'y'
 // }));
 
-function reloadOnChange(win) {
+function reloadOnChange (win) {
 	if (mode !== 'development') return { close: () => {} };
 
 	const watcher = require('chokidar').watch(path.join(__dirname, '**'), { ignoreInitial: true });
@@ -49,7 +49,7 @@ function reloadOnChange(win) {
 	return watcher;
 }
 
-function launch() {
+function launch () {
 	launcherWindow = new BrowserWindow({
 		width: 500,
 		height: 500,
@@ -68,19 +68,13 @@ function launch() {
 
 	const watcher = reloadOnChange(launcherWindow);
 
-	launcherWindow.on('closed', function() {
+	launcherWindow.on('closed', function () {
 		// launcherWindow = null;
 		watcher.close();
 	});
 }
 
-function openProject(flavor) {
-	// const index = recent.indexOf(dir);
-	// if (index !== -1) recent.splice(index, 1);
-	// recent.unshift(dir);
-	// while (recent.length > 5) recent.pop();
-	// fs.writeFileSync(path.join(userData, 'recent.json'), JSON.stringify(recent));
-
+function openProject (flavor) {
 	projectWindow = new BrowserWindow({
 		title: `${flavor} project`,
 		backgroundColor: '#111',
@@ -101,7 +95,7 @@ function openProject(flavor) {
 
 	const watcher = reloadOnChange(projectWindow);
 
-	projectWindow.on('closed', function() {
+	projectWindow.on('closed', function () {
 		// shut down child processes
 		Object.keys(processes).forEach(dir => {
 			processes[dir].kill();
@@ -112,7 +106,7 @@ function openProject(flavor) {
 		watcher.close();
 	});
 
-	projectWindow.on('reload', function() {
+	projectWindow.on('reload', function () {
 		// shut down child processes
 		Object.keys(processes).forEach(dir => {
 			processes[dir].kill();
@@ -131,8 +125,8 @@ function openProject(flavor) {
 app.on('ready', launch);
 
 // Quit when all windows are closed.
-app.on('window-all-closed', function() {
-	launcherWindow = null
+app.on('window-all-closed', function () {
+	launcherWindow = null;
 	// On OS X it is common for applications and their menu bar
 	// to stay active until the user quits explicitly with Cmd + Q
 	if (process.platform !== 'darwin') {
@@ -140,7 +134,7 @@ app.on('window-all-closed', function() {
 	}
 });
 
-app.on('activate', function() {
+app.on('activate', function () {
 	// On OS X it's common to re-create a window in the app when the
 	// dock icon is clicked and there are no other windows open.
 	if (launcherWindow === null) {
@@ -153,6 +147,7 @@ ipcMain.on('connect-pg', (event, constring) => {
 	event.sender.send('status', 'connecting...');
 	pool = connectPg(event, constring);
 	event.sender.send('status', 'success');
+	savePgConnection(constring);
 	openProject('pg');
 });
 
@@ -163,10 +158,10 @@ ipcMain.on('query-pg', (event, query) => {
 			return;
 		}
 		const cleanFields = res.fields.map(d => {
-			return {name: d.name, type: pgTypeLookup[d.dataTypeID]}
+			return {name: d.name, type: pgTypeLookup[d.dataTypeID]};
 		});
 		event.sender.send('query-ok', {rows: res.rows, fields: cleanFields});
-	})
+	});
 });
 
 let db;
@@ -182,14 +177,22 @@ ipcMain.on('load-sqlite', (event, filePath) => {
 });
 
 ipcMain.on('query-sqlite', (event, query) => {
-	db.each(query, function(err, row) {
+	db.each(query, function (err, row) {
 		if (err) {
 			event.sender.send('query-error', err);
 		}
 		// event.sender.send('query-ok', res.rows);
-    // console.log(row.id + ": " + row.info);
+		// console.log(row.id + ": " + row.info);
 	});
 });
+
+function savePgConnection (constring) {
+	const index = recent.indexOf(constring);
+	if (index !== -1) recent.splice(index, 1);
+	recent.unshift(constring);
+	while (recent.length > 5) recent.pop();
+	fs.writeFileSync(path.join(userData, 'recent.json'), JSON.stringify(recent));
+}
 
 // ipcMain.on('open-existing-project', (event, dir) => {
 // 	if (dir) {

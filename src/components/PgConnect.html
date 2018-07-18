@@ -1,0 +1,84 @@
+<div class="connection-container">
+	<div id="constring">
+		<label for="constring">Connection string <span>(postgres://user:pw@domain/database)</span></label>
+		<input bind:value="constring" value="postgres://mhk@localhost/mhk" type="text" name="constring"/>
+	</div>
+</div>
+<button ref:connect on:click="connectPg()">Connect</button>
+{#each recent as cstr}
+	<button class="small" on:click="loadConnection(cstr)">{cstr}</button>
+{:else}
+	<p style="font-style:italic;">~recent projects will appear here~</p>
+{/each}
+
+<style type="text/stylus">
+	label,
+	input
+		display block
+	label span
+		color #aaa
+	input
+		width 100%
+		font-size 21px
+		border 1px solid #000
+		outline none
+		padding 5px 5px 7px 7px
+
+	ref:connect
+		width 100%
+		position relative
+		margin-top 10px
+		color #ccc
+		cursor pointer
+		color #000
+		background-color #409fe7
+		border 1px solid #000
+		pointer-events all
+		&:hover
+			background-color #2a94e5
+		&:active
+			background-color #1b87da
+</style>
+
+<script>
+import path from 'path';
+import { ipcRenderer, remote } from 'electron';
+import readJSON from '../shared/readJSON';
+
+const userData = remote.app.getPath('userData');
+const recent = readJSON(path.join(userData, 'recent.json')) || [];
+
+console.log(recent);
+
+export default {
+	data () {
+		return {
+			recent,
+			constring: 'postgres://mhk@localhost/mhk'
+		};
+	},
+
+	helpers: {
+		basename: path.basename
+	},
+
+	oncreate () {
+		ipcRenderer.on('status', (event, status, errMsg) => {
+			this.set({ status });
+		});
+	},
+
+	methods: {
+		loadConnection (constring) {
+			this.set({constring});
+			this.connectPg();
+		},
+		connectPg () {
+			// el.classList.add('connecting')
+			// el.dataset.status = 'connecting';
+			const { constring } = this.get();
+			ipcRenderer.send('connect-pg', constring);
+		}
+	}
+};
+</script>

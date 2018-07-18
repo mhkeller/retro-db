@@ -1,8 +1,6 @@
 <div id="input-container">
 	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
-	<div id="textarea-container" ref:textareaContainer on:click="setFocus()">
-		<!-- <textarea id="textarea" ref:textarea autofocus placeholder="SQL query..." bind:value="query" on:change="handleKeypress(event)"></textarea> -->
-	</div>
+	<div id="textarea-container" ref:textareaContainer on:click="setFocus()"></div>
 	<button id="input-button" on:click="onQuery()">Query</button>
 </div>
 
@@ -12,7 +10,7 @@
 		margin-top 35px
 		width 100%
 		position relative
-	
+
 	#help-text
 		position absolute
 		top 3px
@@ -30,7 +28,7 @@
 		font-size 14px
 		border-radius 5px 5px 0 0
 		border 2px solid #000
-		margin 0 
+		margin 0
 		min-height 75px
 		&:before
 			content ' '
@@ -58,83 +56,82 @@
 </style>
 
 <script>
-	import { ipcRenderer } from 'electron';
-	import CodeMirror from 'codemirror';
-	import sql from 'codemirror/mode/sql/sql.js';
-	import sublime from 'codemirror/keymap/sublime.js';
-	import matchBrackets from 'codemirror/addon/edit/matchbrackets.js';
-	import closeBrackets from 'codemirror/addon/edit/closebrackets.js';
-	import placeholder from 'codemirror/addon/display/placeholder.js';
+import { ipcRenderer } from 'electron';
+import CodeMirror from 'codemirror';
+import sql from 'codemirror/mode/sql/sql.js'; // eslint-disable-line no-unused-vars
+import sublime from 'codemirror/keymap/sublime.js'; // eslint-disable-line no-unused-vars
+import matchBrackets from 'codemirror/addon/edit/matchbrackets.js'; // eslint-disable-line no-unused-vars
+import closeBrackets from 'codemirror/addon/edit/closebrackets.js'; // eslint-disable-line no-unused-vars
+import placeholder from 'codemirror/addon/display/placeholder.js'; // eslint-disable-line no-unused-vars
 
-	let cm;
+let cm;
 
-	export default {
-		computed: {
-			helpDisplay: ({helpText}) => {
-				if (helpText) return 'inline';
-				return 'none';
-			}
-		},
-		data () {
-			return {
-				query: 'select * from t2;',
-				helpText: '',
-				flavor: 'pg'
-			}
-		},
+export default {
+	computed: {
+		helpDisplay: ({helpText}) => {
+			if (helpText) return 'inline';
+			return 'none';
+		}
+	},
+	data () {
+		return {
+			query: 'select * from t2;',
+			helpText: '',
+			flavor: 'pg'
+		};
+	},
 
-		oncreate () {
-			const { textareaContainer } = this.refs;
-			const { query } = this.get();
+	oncreate () {
+		const { textareaContainer } = this.refs;
+		const { query } = this.get();
 
-			cm = CodeMirror(textareaContainer, {
-				placeholder: 'SQl query...',
-				value: query,
-				mode: 'text/x-pgsql',
-				lineNumbers: true,
-				indentWithTabs: true,
-				smartIndent: true,
-				lineNumbers: true,
-				keyMap: 'sublime',
-				matchBrackets : true,
-				autoCloseBrackets: true,
-				autofocus: true,
-				extraKeys: {
-					'Ctrl-Space': 'autocomplete',
-					'Cmd-Enter': (el) => {
-						this.onQuery();
-					}
-				},
-			});
-
-			cm.on('change', (el) => {
-				this.set({query: el.getValue()})
-			});
-
-			ipcRenderer.on('query-error', (event, err, errMessage) => {
-				console.error(err);
-				// TODO, highlight error position in the text editor
-				this.set({helpText: `Error: ${errMessage}`})
-			});
-			ipcRenderer.on('query-ok', (event) => {
-				this.set({helpText: ''});
-			});
-		},
-
-		methods: {
-			setFocus() {
-				cm.focus();
-			},
-			onQuery () {
-				const {query, flavor} = this.get();
-				if (query.trim()) {
-					ipcRenderer.send(`query-${flavor}`, query);
-				} else {
-					this.set({
-						helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'
-					})
+		cm = CodeMirror(textareaContainer, {
+			placeholder: 'SQl query...',
+			value: query,
+			mode: 'text/x-pgsql',
+			lineNumbers: true,
+			indentWithTabs: true,
+			smartIndent: true,
+			keyMap: 'sublime',
+			matchBrackets: true,
+			autoCloseBrackets: true,
+			autofocus: true,
+			extraKeys: {
+				'Ctrl-Space': 'autocomplete',
+				'Cmd-Enter': (el) => {
+					this.onQuery();
 				}
+			}
+		});
+
+		cm.on('change', (el) => {
+			this.set({query: el.getValue()});
+		});
+
+		ipcRenderer.on('query-error', (event, err, errMessage) => {
+			console.error(err);
+			// TODO, highlight error position in the text editor
+			this.set({helpText: `Error: ${errMessage}`});
+		});
+		ipcRenderer.on('query-ok', (event) => {
+			this.set({helpText: ''});
+		});
+	},
+
+	methods: {
+		setFocus () {
+			cm.focus();
+		},
+		onQuery () {
+			const {query, flavor} = this.get();
+			if (query.trim()) {
+				ipcRenderer.send(`query-${flavor}`, query);
+			} else {
+				this.set({
+					helpText: 'Please enter a query. For example `SELECT * FROM my_table;`'
+				});
 			}
 		}
 	}
+};
 </script>

@@ -9,27 +9,27 @@
 </style>
 
 <script>
-	import VirtualList from '../components/VirtualList.html';
-	import { ipcRenderer } from 'electron';
-	import Row from './Row.html';
+import VirtualList from '../components/VirtualList.html';
+import { ipcRenderer } from 'electron';
+import Row from './Row.html';
 
-	export default {
-		components: { 
-			VirtualList 
-		},
+export default {
+	components: {
+		VirtualList
+	},
 
-		oncreate () {
-			ipcRenderer.on('query-ok', (event, {rows, fields}) => {
-				this.set({rows, fields});
-			});
-		},
+	oncreate () {
+		ipcRenderer.on('query-ok', (event, {rows, fields}) => {
+			this.set({rows, fields});
+		});
+	},
 
-		data() {
-			return {
-				fields: [],
-				rows: [],
-				Row
-			};
-		}
-	};
+	data () {
+		return {
+			fields: [],
+			rows: [],
+			Row
+		};
+	}
+};
 </script>

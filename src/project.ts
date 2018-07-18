@@ -1,5 +1,5 @@
 import App from './project/App.html';
 
-new App({
+const app = new App({ // eslint-disable-line no-unused-vars
 	target: document.body
 });

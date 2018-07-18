@@ -10,7 +10,7 @@
 </main>
 
 <style type="text/stylus">
-	:global(body) 
+	:global(body)
 		background-color white
 		color #333
 	:global(button)
@@ -18,16 +18,16 @@
 		color #333
 		user-select none
 
-	:global(main) 
+	:global(main)
 		box-sizing border-box
 
 	main
 		padding 2em
 		height 100%
-	
-	#menu 
+
+	#menu
 		margin-bottom 14px
-		
+
 	button
 		display inline-block
 		vertical-align top
@@ -41,7 +41,7 @@
 		&:last-child
 			border-radius: 0 5px 5px 0;
 			border-left-width: 1px;
-			
+
 	.active
 		background-color #000
 		color #fff
@@ -49,31 +49,28 @@
 </style>
 
 <script>
-	import * as path from 'path';
-	import { remote, ipcRenderer } from 'electron';
-	import readJSON from '../shared/readJSON';
+// import * as path from 'path';
+// import { ipcRenderer } from 'electron';
+// import readJSON from '../shared/readJSON';
 
-	import Dragbar from '../components/Dragbar.html';
-	import Sqlite from '../components/sqlite-uploader.html';
-	import Pg from '../components/pg-connect.html';
+import Dragbar from '../components/Dragbar.html';
+import SqliteUploader from '../components/SqliteUploader.html';
+import PgConnect from '../components/PgConnect.html';
 
-	// const userData = remote.app.getPath('userData');
-	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
-
-	export default {
-		components: {
-			Dragbar
-		},
-		computed: {
-			Flavor: ({flavor}) => {
-				if (flavor === 'sqlite') return Sqlite;
-				if (flavor === 'pg') return Pg;
-			}
-		},
-		data() {
-			return {
-				flavor: 'sqlite'
-			};
+export default {
+	components: {
+		Dragbar
+	},
+	computed: {
+		Flavor: ({flavor}) => {
+			if (flavor === 'sqlite') return SqliteUploader;
+			if (flavor === 'pg') return PgConnect;
 		}
-	};
+	},
+	data () {
+		return {
+			flavor: 'sqlite'
+		};
+	}
+};
 </script>
