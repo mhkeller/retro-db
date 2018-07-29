@@ -1,5 +1,11 @@
 import App from './project/App.html';
+import { Store } from 'svelte/store.js';
+
+const store = new Store({
+	query: 'select * from t2;'
+});
 
 const app = new App({ // eslint-disable-line no-unused-vars
-	target: document.body
+	target: document.body,
+	store
 });

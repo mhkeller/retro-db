@@ -1,0 +1,79 @@
+<div id="history" bind:clientWidth=containerWidth bind:clientHeight=containerHeight>
+	<svg width="{containerWidth || 0}" height="{containerHeight || 0}">
+	</svg>
+</div>
+
+<style type="text/stylus">
+	#history
+		background-color #f0c
+		width 100%
+		height 100px
+</style>
+
+<script>
+import { ipcRenderer } from 'electron';
+
+import uniqueId from '../modules/uniqueId.js';
+import traverse from '../modules/traverse.js';
+
+export default {
+	data () {
+		const currentId = uniqueId('q');
+		return {
+			currentId,
+			treeData: {
+				id: currentId,
+				children: []
+			}
+		};
+	},
+
+	oncreate () {
+		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
+			this.store.set({query});
+			this.saveQuery();
+		});
+
+		// this.store.on('state', ({changed}) => {
+		// 	console.log('state changed', changed);
+		// 	if (changed.query) {
+		// 		this.saveQuery(changed.query);
+		// 	}
+		// });
+	},
+
+	methods: {
+		newChild (query) {
+			const newId = uniqueId('q');
+			this.set({currentId: newId});
+			return {
+				id: newId,
+				query
+			};
+		},
+
+		saveQuery () {
+			const { query } = this.store.get();
+			const { currentId, treeData } = this.get();
+
+			console.log(treeData, currentId);
+			const node = traverse(treeData, currentId);
+			if (!node.children) {
+				node.children = [];
+			}
+			// Our initial state
+			if (!node.query) {
+				node.query = query;
+			// repeat queries
+			} else if (node.query === query) {
+				return false; // do nothing
+			// new queries
+			} else {
+				node.children.push(this.newChild(query));
+			}
+			console.log(treeData);
+			this.set({ treeData });
+		}
+	}
+};
+</script>

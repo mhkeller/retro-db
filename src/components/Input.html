@@ -6,8 +6,8 @@
 
 <style type="text/stylus">
 	#input-container
-		margin-bottom 21px
-		margin-top 35px
+		margin-bottom 14px
+		margin-top 7px
 		width 100%
 		position relative
 
@@ -75,7 +75,6 @@ export default {
 	},
 	data () {
 		return {
-			query: 'select * from t2;',
 			helpText: '',
 			flavor: 'pg'
 		};
@@ -83,7 +82,7 @@ export default {
 
 	oncreate () {
 		const { textareaContainer } = this.refs;
-		const { query } = this.get();
+		const { query } = this.store.get();
 
 		cm = CodeMirror(textareaContainer, {
 			placeholder: 'SQl query...',
@@ -105,7 +104,7 @@ export default {
 		});
 
 		cm.on('change', (el) => {
-			this.set({query: el.getValue()});
+			this.store.set({ query: el.getValue() });
 		});
 
 		ipcRenderer.on('query-error', (event, err, errMessage) => {
@@ -123,7 +122,8 @@ export default {
 			cm.focus();
 		},
 		onQuery () {
-			const {query, flavor} = this.get();
+			const { query } = this.store.get();
+			const { flavor } = this.get();
 			if (query.trim()) {
 				ipcRenderer.send(`query-${flavor}`, query);
 			} else {

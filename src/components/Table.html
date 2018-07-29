@@ -4,7 +4,7 @@
 	#table
 		border 2px solid #000
 		width 100%
-		height calc(100vh - 220px)
+		height calc(100vh - 280px)
 
 </style>
 
@@ -20,7 +20,7 @@ export default {
 
 	oncreate () {
 		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
-			this.set({ query, rows, fields });
+			this.set({ rows, fields });
 			console.log(query, rows);
 		});
 	},
