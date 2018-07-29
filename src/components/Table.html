@@ -19,8 +19,9 @@ export default {
 	},
 
 	oncreate () {
-		ipcRenderer.on('query-ok', (event, {rows, fields}) => {
-			this.set({rows, fields});
+		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
+			this.set({ query, rows, fields });
+			console.log(query, rows);
 		});
 	},
 

@@ -10,21 +10,21 @@
 </style>
 
 <script>
-	import { remote, ipcRenderer } from 'electron';
+// import { remote, ipcRenderer } from 'electron';
 
-	// const userData = remote.app.getPath('userData');
-	// const recent = readJSON(path.join(userData, 'recent.json')) || [];
+// const userData = remote.app.getPath('userData');
+// const recent = readJSON(path.join(userData, 'recent.json')) || [];
 
-	export default {
-		components: {
-			Dragbar: '../components/Dragbar.html',
-			Input: '../components/Input.html',
-			Table: '../components/Table.html'
-		},
-		data() {
-			return {
-				flavor: window.flavor
-			};
-		}
-	};
+export default {
+	components: {
+		Dragbar: '../components/Dragbar.html',
+		Input: '../components/Input.html',
+		Table: '../components/Table.html'
+	},
+	data () {
+		return {
+			flavor: window.flavor
+		};
+	}
+};
 </script>

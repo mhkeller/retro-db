@@ -5,11 +5,16 @@
 	</div>
 </div>
 <button ref:connect on:click="connectPg()">Connect</button>
-{#each recent as cstr}
-	<button class="small" on:click="loadConnection(cstr)">{cstr}</button>
-{:else}
-	<p style="font-style:italic;">~recent projects will appear here~</p>
-{/each}
+<div ref:recentList>
+	<div class="recent-title">Recent...</div>
+	{#each recent as cstr}
+		<ul>
+			<li class="recent-item" on:click="loadConnection(cstr)"><span>{cstr}</span></li>
+		</ul>
+	{:else}
+		<p style="font-style:italic;">~recent projects will appear here~</p>
+	{/each}
+</div>
 
 <style type="text/stylus">
 	label,
@@ -38,6 +43,23 @@
 			background-color #2a94e5
 		&:active
 			background-color #1b87da
+	ref:recentList
+		margin-top 14px
+		.recent-title
+			font-weight bold
+		ul
+			padding-left 10px
+			margin 0
+		li
+			list-style none
+			cursor pointer
+			&:hover
+				span
+					text-decoration underline
+			span
+				color #037ee3
+			&:before
+				content '- '
 </style>
 
 <script>
