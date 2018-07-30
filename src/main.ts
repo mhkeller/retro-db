@@ -17,7 +17,6 @@ let projectWindow;
 let processes = {};
 
 const userData = app.getPath('userData');
-console.log('user', userData);
 const recent = readJSON(path.join(userData, 'recent.json')) || {
 	pg: [],
 	url: [],
@@ -56,11 +55,10 @@ function reloadOnChange (win) {
 
 function launch () {
 	launcherWindow = new BrowserWindow({
-		width: 500,
+		width: 800,
 		height: 500,
 		minWidth: 200,
-		backgroundColor: 'white',
-		titleBarStyle: 'hidden'
+		backgroundColor: 'white'
 	});
 
 	launcherWindow.loadURL(
@@ -83,10 +81,8 @@ function openProject (flavor) {
 	projectWindow = new BrowserWindow({
 		title: `${flavor} project`,
 		backgroundColor: '#111',
-		width: 500,
-		height: 500,
-		titleBarStyle: 'hidden',
-		tabbingIdentifier: 'lulz'
+		width: 1200,
+		height: 800
 	});
 	projectWindow.toggleTabBar();
 
