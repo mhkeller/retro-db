@@ -86,7 +86,7 @@ export default {
 
 		cm = CodeMirror(textareaContainer, {
 			placeholder: 'SQl query...',
-			value: query,
+			value: query || '',
 			mode: 'text/x-pgsql',
 			lineNumbers: true,
 			indentWithTabs: true,
@@ -103,9 +103,19 @@ export default {
 			}
 		});
 
-		cm.on('change', (el) => {
-			this.store.set({ query: el.getValue() });
+		this.store.on('state', ({ changed, current }) => {
+			if (changed.query === true) {
+				// For some reason this resets the cursor pos so stash it and reset it
+				const cursor = cm.getCursor();
+				cm.setValue(current.query);
+				cm.focus();
+				cm.setCursor(cursor);
+			}
 		});
+
+		// cm.on('change', (el) => {
+		// 	this.store.set({ query: el.getValue() });
+		// });
 
 		ipcRenderer.on('query-error', (event, err, errMessage) => {
 			console.error(err);
@@ -122,7 +132,7 @@ export default {
 			cm.focus();
 		},
 		onQuery () {
-			const { query } = this.store.get();
+			const query = cm.getValue();
 			const { flavor } = this.get();
 			if (query.trim()) {
 				ipcRenderer.send(`query-${flavor}`, query);

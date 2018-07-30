@@ -1,63 +1,126 @@
 <div id="history" bind:clientWidth=containerWidth bind:clientHeight=containerHeight>
-	<svg width="{containerWidth || 0}" height="{containerHeight || 0}">
+	<svg width="{(width || 0) + padding.left + padding.right}" height="{(height || 0) + padding.bottom + padding.top}">
+		<g transform="translate({padding.left}, {padding.top})">
+			{#if treeRoot !== false}
+				{#each treeRoot.links() as link}
+					<path class="link" d="{linkPath(link)}"></path>
+				{/each}
+				{#each treeRoot.descendants() as node}
+					<g class="node {node.data.children ? 'node--internal' : 'node--leaf'} {currentId === node.data.id ? 'active' : ''}" transform="translate({node.y},{node.x})" on:click="setVals(node.data)">
+						<text x="{node.data.children ? -8 : 8}" text-anchor="{node.data.children ? 'end' : 'start'}">{node.data.id}</text>
+						<!-- hit state rect -->
+						<rect y="-8" height="16" width="8" fill="transparent" x="{node.data.children ? -10 : 4}"></rect>
+						<circle r="4.5"></circle>
+					</g>
+				{/each}
+			{/if}
+		</g>
 	</svg>
 </div>
 
 <style type="text/stylus">
 	#history
-		background-color #f0c
 		width 100%
 		height 100px
+		border 2px solid #ccc
+	.node
+		cursor pointer
+		user-select none
+		circle
+			fill #ccc
+			stroke #ccc
+			stroke-width 0
+		text
+			font 14px sans-serif
+			fill #ccc
+			text-shadow 2px 2px 2px #fff, -3px -3px 2px #fff, -3px 0 2px #fff, 0 -3px 2px #fff
+		&.active
+			circle
+				fill #fff
+				stroke #000
+				stroke-width 2px
+			text
+				fill #000
+
+	.link
+		fill none
+		stroke #ccc
+		stroke-width 1.5px
 </style>
 
 <script>
 import { ipcRenderer } from 'electron';
 
+import { hierarchy as d3Hierarchy, tree as d3Tree } from 'd3-hierarchy';
+
+import { linkHorizontal as d3LinkHorizontal } from 'd3-shape';
+
 import uniqueId from '../modules/uniqueId.js';
 import traverse from '../modules/traverse.js';
 
-export default {
-	data () {
-		const currentId = uniqueId('q');
-		return {
-			currentId,
-			treeData: {
-				id: currentId,
-				children: []
-			}
-		};
-	},
+const linkGenerator = d3LinkHorizontal()
+	.x(d => d.y)
+	.y(d => d.x);
 
+export default {
 	oncreate () {
 		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
 			this.store.set({query});
 			this.saveQuery();
 		});
+	},
 
-		// this.store.on('state', ({changed}) => {
-		// 	console.log('state changed', changed);
-		// 	if (changed.query) {
-		// 		this.saveQuery(changed.query);
-		// 	}
-		// });
+	data () {
+		return {
+			padding: {top: 5, right: 35, bottom: 5, left: 30}
+		};
+	},
+
+	computed: {
+		width: ({ containerWidth, padding }) => {
+			return containerWidth - padding.left - padding.right;
+		},
+
+		height: ({ containerHeight, padding }) => {
+			return containerHeight - padding.top - padding.bottom;
+		},
+		treeRoot: ({ width, height, treeData }) => {
+			if ((!width && !height) || !treeData) {
+				return false;
+			} else {
+				const tree = d3Tree()
+					.size([height, width]);
+
+				const treeRoot = tree(d3Hierarchy(treeData));
+				return treeRoot;
+			}
+		}
 	},
 
 	methods: {
 		newChild (query) {
-			const newId = uniqueId('q');
-			this.set({currentId: newId});
+			const newId = this.genId();
 			return {
 				id: newId,
 				query
 			};
 		},
 
+		genId () {
+			const id = uniqueId('q');
+			this.set({ currentId: id });
+			return id;
+		},
+
 		saveQuery () {
 			const { query } = this.store.get();
-			const { currentId, treeData } = this.get();
+			const data = this.get();
 
-			console.log(treeData, currentId);
+			const currentId = data.currentId || this.genId();
+			const treeData = data.treeData || { id: currentId, children: [] };
+
 			const node = traverse(treeData, currentId);
+
 			if (!node.children) {
 				node.children = [];
 			}
@@ -71,8 +134,19 @@ export default {
 			} else {
 				node.children.push(this.newChild(query));
 			}
-			console.log(treeData);
+			// console.log(treeData);
 			this.set({ treeData });
+		},
+
+		setVals (data) {
+			this.set({currentId: data.id});
+			this.store.set({ query: data.query });
+		}
+	},
+
+	helpers: {
+		linkPath: (link) => {
+			return linkGenerator(link);
 		}
 	}
 };
