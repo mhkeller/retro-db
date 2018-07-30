@@ -17,7 +17,12 @@ let projectWindow;
 let processes = {};
 
 const userData = app.getPath('userData');
-const recent = readJSON(path.join(userData, 'recent.json')) || [];
+console.log('user', userData);
+const recent = readJSON(path.join(userData, 'recent.json')) || {
+	pg: [],
+	url: [],
+	sqlite: []
+};
 
 const mode = process.env.NODE_ENV;
 
@@ -147,7 +152,7 @@ ipcMain.on('connect-pg', (event, constring) => {
 	event.sender.send('status', 'connecting...');
 	pool = connectPg(event, constring);
 	event.sender.send('status', 'success');
-	savePgConnection(constring);
+	saveConnection(constring, 'pg');
 	openProject('pg');
 });
 
@@ -163,6 +168,11 @@ ipcMain.on('query-pg', (event, query) => {
 		});
 		event.sender.send('query-ok', {query: q, rows: res.rows, fields: cleanFields});
 	});
+});
+
+ipcMain.on('connect-url', (event, constring) => {
+	saveConnection(constring, 'url');
+	openProject('url');
 });
 
 let db;
@@ -187,11 +197,12 @@ ipcMain.on('query-sqlite', (event, query) => {
 	});
 });
 
-function savePgConnection (constring) {
-	const index = recent.indexOf(constring);
-	if (index !== -1) recent.splice(index, 1);
-	recent.unshift(constring);
-	while (recent.length > 5) recent.pop();
+function saveConnection (constring, which) {
+	const list = recent[which];
+	const index = list.indexOf(constring);
+	if (index !== -1) list.splice(index, 1);
+	list.unshift(constring);
+	while (list.length > 5) list.pop();
 	fs.writeFileSync(path.join(userData, 'recent.json'), JSON.stringify(recent));
 }
 

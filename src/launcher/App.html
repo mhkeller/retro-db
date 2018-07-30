@@ -1,7 +1,7 @@
 <Dragbar/>
 <main>
 	<div id="menu">
-    <button class="{flavor === 'pg' ? 'active' : ''}" on:click="set({ flavor: 'pg' })">PostgreSQL</button><button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button>
+    <button class="{flavor === 'pg' ? 'active' : ''}" on:click="set({ flavor: 'pg' })">PostgreSQL</button><button class="{flavor === 'sqlite' ? 'active' : ''}"on:click="set({ flavor: 'sqlite' })">SQLite</button><button class="{flavor === 'url' ? 'active' : ''}"on:click="set({ flavor: 'url' })">Url</button>
   </div>
 
   <div id="list">
@@ -32,11 +32,14 @@
 		display inline-block
 		vertical-align top
 		border 2px solid #000
-		width 50%
+		width 33%
 		text-align center
 		cursor pointer
 		&:first-child
 			border-radius 5px 0 0 5px
+			border-right-width 1px
+		&:nth-child(2)
+			border-left-width 1px
 			border-right-width 1px
 		&:last-child
 			border-radius: 0 5px 5px 0;
@@ -56,6 +59,7 @@
 import Dragbar from '../components/Dragbar.html';
 import SqliteUploader from '../components/SqliteUploader.html';
 import PgConnect from '../components/PgConnect.html';
+import UrlConnect from '../components/UrlConnect.html';
 
 export default {
 	components: {
@@ -65,6 +69,7 @@ export default {
 		Flavor: ({flavor}) => {
 			if (flavor === 'sqlite') return SqliteUploader;
 			if (flavor === 'pg') return PgConnect;
+			if (flavor === 'url') return UrlConnect;
 		}
 	},
 	data () {

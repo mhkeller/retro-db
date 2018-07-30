@@ -1,7 +1,7 @@
 <div class="connection-container">
 	<div id="constring">
-		<label for="constring">Connection string <span>(postgres://user:pw@domain/database)</span></label>
-		<input bind:value="constring" value="postgres://mhk@localhost/mhk" type="text" name="constring"/>
+		<label for="constring">Url <span>(http://localhost:3000)</span></label>
+		<input bind:value="constring" value="http://localhost:3000" type="text" name="constring"/>
 	</div>
 </div>
 <button ref:connect on:click="connect()">Connect</button>
@@ -73,8 +73,8 @@ const recent = readJSON(path.join(userData, 'recent.json')) || {};
 export default {
 	data () {
 		return {
-			recent: recent.pg || [],
-			constring: 'postgres://mhk@localhost/mhk'
+			recent: recent.url || [],
+			constring: 'http://localhost:3000'
 		};
 	},
 
@@ -97,7 +97,7 @@ export default {
 			// el.classList.add('connecting')
 			// el.dataset.status = 'connecting';
 			const { constring } = this.get();
-			ipcRenderer.send('connect-pg', constring);
+			ipcRenderer.send('connect-url', constring);
 		}
 	}
 };
