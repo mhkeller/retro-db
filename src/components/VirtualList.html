@@ -12,7 +12,7 @@
 			{#each visible as item (item.index)}
 				<div class='row'>
 					{#each fields as field}
-						<div class="cell {hasOverflow(item.data[field.name], field.name, dims, widthMultiplier)}" style="text-align:{alignByType(field.type)};width: {dims[field.name]}px;" on:mouseout="hideTooltip()" on:mouseover='fillTooltip(event)' on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
+						<div class="cell {hasOverflow(item.data[field.name], field.name, dims, widthMultiplier)}" style="text-align:{alignByType(field.type)};width: {dims[field.name]}px;" on:mouseout="hideTooltip()" on:mouseover='fillTooltip(event, item.data[field.name])' on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
 					{/each}
 				</div>
 			{/each}
@@ -69,6 +69,13 @@
 </style>
 
 <script>
+
+function chop (val) {
+	const str = val.toString();
+	const chopped = str.substr(0, Math.min(20, str.length));
+	return chopped;
+}
+
 export default {
 	components: {
 		Tooltip: '../components/Tooltip.html'
@@ -99,9 +106,9 @@ export default {
 		},
 		parse (data) {
 			if (typeof data === 'object') {
-				return JSON.stringify(data);
+				return chop(JSON.stringify(data));
 			}
-			return data;
+			return chop(data);
 		},
 		hasOverflow (d, fieldName, dims, widthMultiplier) {
 			const valString = typeof d !== 'string' ? JSON.stringify(d) : d;
@@ -250,16 +257,10 @@ export default {
 		hideTooltip() {
 			this.set({overTd: false});
 		},
-		fillTooltip(e) {
+		fillTooltip(e, text) {
 			this.set({overTd: true});
-			const text = e.target.innerHTML;
-			let val = text;
-			try {
-				val = JSON.stringify(JSON.parse(text), null, 2);
-				this.set({ttVal: val});
-			} catch (err) {
-				this.set({ttVal: text});
-			}
+			let val = typeof text === 'object' ? JSON.stringify(text, null, 2) : text;
+			this.set({ttVal: val});
 		},
 		printToConsole(e) {
 			const text = e.target.innerHTML;
