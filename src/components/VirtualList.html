@@ -1,5 +1,5 @@
 <Tooltip ref:tooltip x="{x}" y="{y}" overTd="{overTd}" ttVal='{ttVal}'/>
-<div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })' bind:offsetHeight="viewportHeight">
+<div ref:viewport on:scroll='refresh()' style='height: {height};' on:mousemove='set({ x: event.clientX - _bbox.x, y: event.clientY - _bbox.y })' bind:offsetHeight="viewportHeight" bind:offsetWidth="viewportWidth">
 	<div ref:container style='padding-top: {_top}px; padding-bottom: {_bottom}px;'>
 		{#if fields.length}
 			<div id="thead" style='transform: translateY({_headerOffset}px);'>
@@ -158,7 +158,7 @@ export default {
 			this.initialise();
 		}
 		this.on('state', ({ changed, previous, current }) => {
-			if (changed.items || changed.height || changed.itemHeight || changed.viewportHeight) {
+			if (changed.items || changed.height || changed.itemHeight || changed.viewportHeight || changed.viewportWidth) {
 				if (current.itemHeight && (changed.itemHeight || current.items.length > this.heightMap.length)) {
 					this.heightMap = current.items.map(() => current.itemHeight);
 				} else if (current.items.length > this.heightMap.length) {
@@ -186,7 +186,6 @@ export default {
 	methods: {
 		initialise () {
 			const { items, itemHeight, viewportHeight } = this.get();
-			const { viewport } = this.refs;
 			if (itemHeight) {
 				this.heightMap = items.map(item => itemHeight);
 				this.set({
