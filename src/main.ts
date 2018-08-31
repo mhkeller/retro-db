@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as url from 'url';
 // import * as child_process from 'child_process';
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, clipboard } from 'electron';
 // import exec from './shared/exec';
 
 import readJSON from './shared/readJSON';
@@ -165,6 +165,10 @@ ipcMain.on('query-pg', (event, query) => {
 		});
 		event.sender.send('query-ok', {query: q, rows: res.rows, fields: cleanFields});
 	});
+});
+
+ipcMain.on('copy-to-clipboard', (event, val) => {
+	clipboard.writeText(val);
 });
 
 ipcMain.on('connect-url', (event, constring) => {

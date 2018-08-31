@@ -12,7 +12,7 @@
 			{#each visible as item (item.index)}
 				<div class='row'>
 					{#each fields as field}
-						<div class="cell {hasOverflow(item.data[field.name], field.name, dims, widthMultiplier)}" style="text-align:{alignByType(field.type)};width: {dims[field.name]}px;" on:mouseout="hideTooltip()" on:mouseover='fillTooltip(event, item.data[field.name])' on:click="printToConsole(event)">{parse(item.data[field.name])}</div>
+						<div class="cell {hasOverflow(item.data[field.name], field.name, dims, widthMultiplier)}" style="text-align:{alignByType(field.type)};width: {dims[field.name]}px;" on:mouseout="hideTooltip()" on:mouseover='fillTooltip(event, item.data[field.name])' on:click="printToConsole(event, item.data[field.name], field.name)">{parse(item.data[field.name])}</div>
 					{/each}
 				</div>
 			{/each}
@@ -46,6 +46,19 @@
 			padding-left 7px
 			display inline-block
 			user-select none
+	.row:hover .cell
+		cursor pointer
+		background-color #eee
+		&.has-overflow:after
+			background-color #eee
+			box-shadow -3px 0px 8px #eee
+
+	.row:active .cell
+		background-color #ddd
+		&.has-overflow:after
+			background-color #ddd
+			box-shadow -3px 0px 8px #ddd
+
 	.cell
 		border-right 1px solid #ccc
 		border-bottom 1px solid #ccc
@@ -69,6 +82,7 @@
 </style>
 
 <script>
+import { ipcRenderer } from 'electron';
 
 function chop (val) {
 	const str = val.toString();
@@ -261,32 +275,16 @@ export default {
 			let val = typeof text === 'object' ? JSON.stringify(text, null, 2) : text;
 			this.set({ttVal: val});
 		},
-		printToConsole(e) {
-			const text = e.target.innerHTML;
-			try {
-				console.log(JSON.parse(text));
-			} catch (err) {
-				console.log(text);
+		printToConsole(e, val, fieldName) {
+			console.clear();
+			if (fieldName === 'query') {
+				console.log(val.replace(/&/g, '\n'));
+			} else {
+				console.log(val);
 			}
 			if (e.metaKey === true) {
-				var textArea = document.createElement('textarea');
-				textArea.style.display = 'none';
-				textArea.value = text;
-				document.body.appendChild(textArea);
-				textArea.focus();
-				textArea.select();
-
-				try {
-					var successful = document.execCommand('copy');
-					if (successful) {
-						console.log('Copied cell to clipboard');
-					} else {
-						console.log('Clipboard copy failed');
-					}
-				} catch (err) {
-					console.error('Unable to copy to clipboard', err);
-				}
-				document.body.removeChild(textArea);
+				ipcRenderer.send('copy-to-clipboard', typeof val === 'object' ? JSON.stringify(val, null, 2) : val);
+				console.log('Copied to clipboard!');
 			}
 		}
 	}
