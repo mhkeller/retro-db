@@ -153,6 +153,7 @@ ipcMain.on('connect-pg', (event, constring) => {
 });
 
 ipcMain.on('query-pg', (event, query) => {
+	event.sender.send('query-sent');
 	const q = query.trim();
 	pool.query(q, (err, res) => {
 		if (err) {

@@ -1,11 +1,20 @@
-<div id="table"><VirtualList items={rows} fields={fields} component={Row} /></div>
+<div id="table">
+	<div class="meta">{metaText}</div>
+	{#if rows.length > 0 && fields.length > 0}
+		<VirtualList items='{rows}' fields='{fields}' component='{Row}' />
+	{/if}
+</div>
 
 <style type="text/stylus">
 	#table
 		border 2px solid #000
 		width 100%
 		height calc(100vh - 280px)
-
+	.meta
+		position absolute;
+		bottom 0
+		right 0
+		transform translate(0, 100%)
 </style>
 
 <script>
@@ -18,12 +27,27 @@ export default {
 		VirtualList
 	},
 
+	computed: {
+		metaText: ({ processing, rows, showMeta }) => {
+			if (processing === true) {
+				return 'Querying...';
+			} else if (showMeta) {
+				return `${rows.length} rows`;
+			} else {
+				return '';
+			}
+		}
+	},
+
 	oncreate () {
 		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
-			this.set({ rows, fields });
+			this.set({ processing: false, rows, fields });
 			console.clear();
 			console.log(query);
-			console.log(rows);
+			// console.log(rows);
+		});
+		ipcRenderer.on('query-sent', () => {
+			this.set({ processing: true, showMeta: true, rows: [], fields: [] });
 		});
 	},
 
@@ -31,6 +55,8 @@ export default {
 		return {
 			fields: [],
 			rows: [],
+			processing: false,
+			showMeta: false,
 			Row
 		};
 	}
