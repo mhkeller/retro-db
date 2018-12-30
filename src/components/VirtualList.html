@@ -172,7 +172,7 @@ export default {
 			this.initialise();
 		}
 		this.on('state', ({ changed, previous, current }) => {
-			if (changed.items || changed.height || changed.itemHeight || changed.viewportHeight || changed.viewportWidth) {
+			if (changed.items || changed.height || changed.itemHeight || changed.viewportHeight) {
 				if (current.itemHeight && (changed.itemHeight || current.items.length > this.heightMap.length)) {
 					this.heightMap = current.items.map(() => current.itemHeight);
 				} else if (current.items.length > this.heightMap.length) {
