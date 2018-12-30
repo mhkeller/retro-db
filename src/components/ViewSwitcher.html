@@ -1,0 +1,52 @@
+<div id="view-switcher">
+	<ul>
+	{#each $views as view}
+		<li class="view-tab" on:click='setActiveView(view)'>{view.name || view.type}</li>
+	{/each}
+	<li ref:newView on:click='addView()'>+</li>
+	</ul>
+</div>
+
+<style>
+	#view-switcher {
+		height: 25px;
+	}
+	ul {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		display: flex;
+	}
+	li {
+		padding-right: 7px;
+		flex-flow: row;
+		user-select: none;
+		cursor: pointer;
+	}
+	ref:newView {
+		color: #999;
+		font-weight: bold;
+	}
+	ref:newView:hover {
+		color: #409fe7;
+		cursor: pointer;
+	}
+</style>
+
+<script>
+import MapComponent from './views/Map.html';
+
+export default {
+	methods: {
+		setActiveView (view) {
+			console.log(view);
+			this.store.set({ activeViewId: view.id });
+		},
+		addView () {
+			const { views } = this.store.get();
+			views.push({ name: 'Map', id: 'map_0', component: MapComponent });
+			this.store.set({ views, activeViewId: 'map_0' });
+		}
+	}
+};
+</script>

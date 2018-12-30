@@ -1,4 +1,4 @@
-<div id="table">
+<div class="table view">
 	<div class="meta">{metaText}</div>
 	{#if rows.length > 0 && fields.length > 0}
 		<VirtualList items='{rows}' fields='{fields}' component='{Row}' />
@@ -6,11 +6,14 @@
 </div>
 
 <style type="text/stylus">
-	#table
+	.table
 		border 2px solid #000
-		width 100%
-		display flex
-		flex 1
+	.view
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		left 0
 	.meta
 		position absolute;
 		bottom 0
@@ -19,9 +22,9 @@
 </style>
 
 <script>
-import VirtualList from '../components/VirtualList.html';
 import { ipcRenderer } from 'electron';
-import Row from './Row.html';
+import VirtualList from '../VirtualList.html';
+import Row from '../Row.html';
 
 export default {
 	components: {
@@ -41,9 +44,19 @@ export default {
 	},
 
 	oncreate () {
-		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
-			console.log('fields', fields);
-			this.set({ processing: false, rows, fields });
+		const { rows, fields } = this.store.get();
+
+		if (rows) {
+			this.set({ rows, fields });
+		}
+		this.store.on('update', ({ changed, current }) => {
+			if (changed.rows === true) {
+				this.set({ rows: current.rows, fields: current.fields });
+			}
+		});
+
+		ipcRenderer.on('query-ok', (event, { query }) => {
+			this.set({ processing: false });
 			// console.clear();
 			console.log(query);
 			// console.log(rows);

@@ -49,6 +49,7 @@
     "default-shell": "^1.0.1",
     "degit": "^2.1.3",
     "just-debounce": "^1.0.0",
+    "mapbox-gl": "^0.52.0",
     "monaco-editor": "^0.13.1",
     "node-pty": "^0.7.4",
     "pg": "^7.4.3",

@@ -1,0 +1,20 @@
+<div class="view-container">
+	<svelte:component this={view.component}/>
+</div>
+
+<style type="text/stylus">
+	.view-container
+		width 100%
+		display flex
+		flex 1
+</style>
+
+<script>
+export default {
+	computed: {
+		view: ({ $views, $activeViewId }) => {
+			return $views.filter(d => d.id === $activeViewId)[0];
+		}
+	}
+};
+</script>

@@ -2,3 +2,4 @@
 node_modules
 dist
 assets/svelte.*
+src/config/mapbox-token.js

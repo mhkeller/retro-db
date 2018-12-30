@@ -148,7 +148,8 @@ export default {
 			// TODO, highlight error position in the text editor
 			this.set({helpText: `Error: ${errMessage}`});
 		});
-		ipcRenderer.on('query-ok', (event) => {
+		ipcRenderer.on('query-ok', (event, { rows, fields }) => {
+			this.store.set({ rows, fields });
 			this.set({helpText: ''});
 		});
 	},
