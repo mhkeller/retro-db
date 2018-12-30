@@ -42,6 +42,7 @@ export default {
 
 	oncreate () {
 		ipcRenderer.on('query-ok', (event, {rows, fields, query}) => {
+			console.log('fields', fields);
 			this.set({ processing: false, rows, fields });
 			console.clear();
 			console.log(query);

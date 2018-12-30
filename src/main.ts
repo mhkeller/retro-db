@@ -161,8 +161,10 @@ ipcMain.on('query-pg', (event, query) => {
 			return;
 		}
 		const cleanFields = res.fields.map(d => {
-			return {name: d.name, type: pgTypeLookup[d.dataTypeID]};
+			const type = pgTypeLookup[d.dataTypeID] || d.dataTypeID;
+			return {name: d.name, type};
 		});
+
 		event.sender.send('query-ok', {query: q, rows: res.rows, fields: cleanFields});
 	});
 });
