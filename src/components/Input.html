@@ -1,10 +1,14 @@
 <div id="input-container">
 	<div id="help-text" style="display:{helpDisplay}">{helpText}</div>
 	<div id="textarea-container" ref:textareaContainer on:click="setFocus()"></div>
-	<button id="input-button" on:click="onQuery()">Query</button>
+	<button ref:button id="input-button" on:click="onQuery()">Query</button>
 </div>
 
 <style type="text/stylus">
+	$button-color = #54d48b
+	$button-hover-color = shade($button-color, 8%)
+	$button-active-color = shade($button-color, 18%)
+
 	#input-container
 		margin-bottom 14px
 		margin-top 7px
@@ -49,10 +53,28 @@
 		cursor pointer
 		padding 8px
 		margin 0
-		&:hover
-			background #4dc37f
-		&:active
-			background #44ad71
+
+	button:hover {
+		background: $button-hover-color;
+	}
+
+	button:active {
+		background: $button-active-color;
+	}
+
+	:global(button.active) {
+		animation: simulateActiveState 135ms 1;
+	}
+
+	@keyframes simulateActiveState {
+		0% {
+			background-color: $button-active-color;
+		}
+
+		100% {
+			background-color: $button-color;
+		}
+	}
 </style>
 
 <script>
@@ -83,6 +105,9 @@ export default {
 	oncreate () {
 		const { textareaContainer } = this.refs;
 		const { query } = this.store.get();
+
+		this.refs.button.addEventListener('animationend', () => this.refs.button.classList.remove('active'));
+		this.refs.button.addEventListener('webkitAnimationEnd', () => this.refs.button.classList.remove('active'));
 
 		cm = CodeMirror(textareaContainer, {
 			placeholder: 'SQl query...',
