@@ -123,6 +123,7 @@ export default {
 			extraKeys: {
 				'Ctrl-Space': 'autocomplete',
 				'Cmd-Enter': (el) => {
+					this.refs.button.classList.add('active');
 					this.onQuery();
 				}
 			}
