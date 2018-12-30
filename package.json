@@ -1,7 +1,7 @@
 {
-  "name": "ia-electron",
+  "name": "vintage-db",
   "version": "0.0.1",
-  "description": "Incidents and accidents desktop app",
+  "description": "experimental sql interface",
   "main": "dist/main.ts.js",
   "scripts": {
     "start": "cross-env NODE_ENV=development electron .",
