@@ -12,7 +12,7 @@
 	:global(body)
 		background-color white
 		color #333
-	:global(button)
+	#menu :global(button)
 		font-weight normal
 		color #333
 		user-select none
@@ -27,27 +27,28 @@
 	#menu
 		margin-bottom 14px
 
-	button
-		display inline-block
-		vertical-align top
-		border 2px solid #000
-		width 33%
-		text-align center
-		cursor pointer
-		&:first-child
-			border-radius 5px 0 0 5px
-			border-right-width 1px
-		&:nth-child(2)
-			border-left-width 1px
-			border-right-width 1px
-		&:last-child
-			border-radius: 0 5px 5px 0;
-			border-left-width: 1px;
+		button
+			display inline-block
+			vertical-align top
+			border 2px solid #000
+			width 33%
+			background-color #fff
+			text-align center
+			cursor pointer
+			&:first-child
+				border-radius 5px 0 0 5px
+				border-right-width 1px
+			&:nth-child(2)
+				border-left-width 1px
+				border-right-width 1px
+			&:last-child
+				border-radius: 0 5px 5px 0;
+				border-left-width: 1px;
 
-	.active
-		background-color #000
-		color #fff
-		cursor default
+			&.active
+				background-color #000
+				color #fff
+				cursor default
 </style>
 
 <script>
@@ -55,15 +56,11 @@
 // import { ipcRenderer } from 'electron';
 // import readJSON from '../shared/readJSON';
 
-import Dragbar from '../components/Dragbar.html';
 import SqliteUploader from '../components/SqliteUploader.html';
 import PgConnect from '../components/PgConnect.html';
 import UrlConnect from '../components/UrlConnect.html';
 
 export default {
-	components: {
-		Dragbar
-	},
 	computed: {
 		Flavor: ({flavor}) => {
 			if (flavor === 'sqlite') return SqliteUploader;

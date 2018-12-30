@@ -11,26 +11,26 @@
 		height 50vh
 		position relative
 		margin-top 21px
-		&:active,
-		&.active
-			border 3px solid #000
-		&:active
-			&:after
-				content 'Select your file...'
-		&.active
-			&:after
-				content 'Drop drop drop...'
-		&:after
-			content 'Drag sqlite file...'
-			position absolute
-			top 50%
-			left 50%
-			transform translate(-50%, -50%)
-			pointer-events none
+		&:hover
+			cursor pointer !important
+	:global(#drop-target.active),
+	#drop-target:active
+		border 3px solid #000
+	:global(#drop-target.active:after)
+		content 'Drop drop drop...' !important
+	#drop-target:after
+		content 'Drag sqlite file...'
+		position absolute
+		top 50%
+		left 50%
+		transform translate(-50%, -50%)
+		pointer-events none
 	input
 		opacity 0
 		width 100%
 		height 100%
+		&:hover
+			cursor pointer !important
 </style>
 
 <script>

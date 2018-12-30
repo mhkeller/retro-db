@@ -19,7 +19,6 @@
 </style>
 
 <script>
-import mapboxgl from 'mapbox-gl';
 import accessToken from '../../config/mapbox-token.js';
 
 export default {
@@ -27,8 +26,8 @@ export default {
 		/* --------------------------------------------
 		 * Create map
 		 */
-		mapboxgl.accessToken = accessToken;
-		const map = new mapboxgl.Map({
+		window.mapboxgl.accessToken = accessToken;
+		const map = new window.mapboxgl.Map({
 			container: this.refs.map,
 			style: `mapbox://styles/mapbox/light-v9`,
 			center: [ -73.967600, 40.780665 ],
