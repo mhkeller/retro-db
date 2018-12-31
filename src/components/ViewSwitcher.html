@@ -4,8 +4,8 @@
 			<li class="view-tab {$activeViewId === view.id ? 'active' : ''}" on:click='setActiveView(view)'>{view.name}</li>
 		{/each}
 		<li ref:newView>+
-			<select on:change='addView(this)' style="opacity: 0;">
-				<option disabled>+</option>
+			<select ref:dropdown on:change='addView(this)' style="opacity: 0;">
+				<option disabled selected>+</option>
 				{#each $viewRegistry as view}
 					<option value={view.type}>{view.name}</option>
 				{/each}
@@ -55,10 +55,13 @@ export default {
 			this.store.set({ activeViewId: view.id });
 		},
 		addView (el) {
-			const { views, genNewView } = this.store.get();
-			const newView = genNewView(el.value);
-			views.push(newView);
-			this.store.set({ views, activeViewId: newView.id });
+			if (el.value) {
+				const { views, genNewView } = this.store.get();
+				const newView = genNewView(el.value);
+				views.push(newView);
+				this.store.set({ views, activeViewId: newView.id });
+				this.refs.dropdown.selectedIndex = 0;
+			}
 		}
 	}
 };
