@@ -1,9 +1,16 @@
 <div id="view-switcher">
 	<ul>
-	{#each $views as view}
-		<li class="view-tab" on:click='setActiveView(view)'>{view.name || view.type}</li>
-	{/each}
-	<li ref:newView on:click='addView()'>+</li>
+		{#each $views as view}
+			<li class="view-tab {$activeViewId === view.id ? 'active' : ''}" on:click='setActiveView(view)'>{view.name}</li>
+		{/each}
+		<li ref:newView>+
+			<select on:change='addView(this)' style="opacity: 0;">
+				<option disabled>+</option>
+				{#each $viewRegistry as view}
+					<option value={view.type}>{view.name}</option>
+				{/each}
+			</select>
+		</li>
 	</ul>
 </div>
 
@@ -17,11 +24,15 @@
 		padding: 0;
 		display: flex;
 	}
-	li {
+	.view-tab {
 		padding-right: 7px;
 		flex-flow: row;
+		color: #999;
 		user-select: none;
 		cursor: pointer;
+	}
+	#view-switcher :global(.view-tab.active) {
+		color: #000;
 	}
 	ref:newView {
 		color: #999;
@@ -31,21 +42,23 @@
 		color: #409fe7;
 		cursor: pointer;
 	}
+	select {
+		cursor: pointer;
+		transform: translate(-14px, 0);
+	}
 </style>
 
 <script>
-import MapComponent from './views/Map.html';
-
 export default {
 	methods: {
 		setActiveView (view) {
-			console.log(view);
 			this.store.set({ activeViewId: view.id });
 		},
-		addView () {
-			const { views } = this.store.get();
-			views.push({ name: 'Map', id: 'map_0', component: MapComponent });
-			this.store.set({ views, activeViewId: 'map_0' });
+		addView (el) {
+			const { views, genNewView } = this.store.get();
+			const newView = genNewView(el.value);
+			views.push(newView);
+			this.store.set({ views, activeViewId: newView.id });
 		}
 	}
 };
