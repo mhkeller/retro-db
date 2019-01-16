@@ -1,4 +1,4 @@
-export default function traverse (node, target) {
+export function traverse (node, target) {
 	let result;
 	if (node.id === target) {
 		result = node;

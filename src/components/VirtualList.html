@@ -197,6 +197,9 @@ export default {
 			}
 		});
 	},
+	ondestroy () {
+		this.set({ items: [], fields: [] });
+	},
 	methods: {
 		initialise () {
 			const { items, itemHeight, viewportHeight } = this.get();

@@ -10,10 +10,30 @@
 </style>
 
 <script>
+import Blank from './views/Blank.html';
+
+const blankComponent = { component: Blank };
+
 export default {
-	computed: {
-		view: ({ $views, $activeViewId }) => {
-			return $views.filter(d => d.id === $activeViewId)[0];
+	data () {
+		return {
+			view: blankComponent
+		};
+	},
+	oncreate () {
+		this.store.on('update', ({ changed, current }) => {
+			if (changed.activeViewId === true) {
+				this.setActiveView();
+			}
+		});
+		this.setActiveView();
+	},
+	methods: {
+		setActiveView () {
+			const { views, activeViewId } = this.store.get();
+			this.set({ view: blankComponent });
+			const view = views.find(d => d.id === activeViewId);
+			this.set({ view });
 		}
 	}
 };

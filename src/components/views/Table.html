@@ -1,7 +1,7 @@
 <div class="table view">
 	<div class="meta">{metaText}</div>
 	{#if rows.length > 0 && fields.length > 0}
-		<VirtualList items='{rows}' fields='{fields}' component='{Row}' />
+		<VirtualList items='{rows}' {fields} component='{Row}' />
 	{/if}
 </div>
 
@@ -46,6 +46,10 @@ export default {
 	oncreate () {
 		const { rows, fields } = this.store.get();
 
+		console.log('rows', rows);
+		console.log('fields', fields);
+
+		this.set({ rows: [], fields: [] });
 		if (rows) {
 			this.set({ rows, fields });
 		}

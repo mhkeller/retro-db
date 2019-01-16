@@ -55,8 +55,10 @@ import { hierarchy as d3Hierarchy, tree as d3Tree } from 'd3-hierarchy';
 
 import { linkHorizontal as d3LinkHorizontal } from 'd3-shape';
 
-import uniqueId from '../modules/uniqueId.js';
-import traverse from '../modules/traverse.js';
+import { genUniqueId } from '../modules/genUniqueId.js';
+import { traverse } from '../modules/traverse.js';
+
+const uniqueId = genUniqueId();
 
 const linkGenerator = d3LinkHorizontal()
 	.x(d => d.y)
@@ -107,7 +109,7 @@ export default {
 		},
 
 		genId () {
-			const id = uniqueId('');
+			const id = uniqueId();
 			this.set({ currentId: id });
 			return id;
 		},
