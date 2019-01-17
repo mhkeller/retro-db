@@ -1,12 +1,29 @@
-<div class="view-container">
-	<svelte:component this={view.component}/>
+<div class="views-container">
+	{#each $views as view}
+		<div class="view-container {view.id === $activeViewId ? 'active' : 'hidden'} ">
+			<svelte:component this={view.component}/>
+		</div>
+	{/each}
 </div>
 
 <style type="text/stylus">
-	.view-container
+	.views-container
+		position relative
+	.views-container
 		width 100%
 		display flex
 		flex 1
+	.view-container
+		z-index 2
+		position absolute
+		top 0
+		right 0
+		bottom 0
+		left 0
+	.views-container :global(.view-container.hidden)
+		opacity 0
+		pointer-events none
+		z-index -1
 </style>
 
 <script>
