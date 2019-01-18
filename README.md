@@ -1,4 +1,4 @@
-VintageDB
+retroDB
 ===
 
 > experimental sql interface
