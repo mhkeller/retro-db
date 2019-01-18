@@ -1,5 +1,5 @@
 {
-  "name": "vintage-db",
+  "name": "retro-db",
   "version": "0.0.1",
   "description": "experimental sql interface",
   "main": "dist/main.ts.js",
